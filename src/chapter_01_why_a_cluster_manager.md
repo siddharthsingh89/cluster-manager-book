@@ -122,9 +122,6 @@ Our goal isn’t to re-implement a specific system, but to:
 
 ---
 
-Perfect 👍 Here’s the **new section** you can append to your Chapter 1 (right after 1.8 Summary):
-
----
 
 ## 1.8 Visualizing the Cluster Manager’s Role
 
