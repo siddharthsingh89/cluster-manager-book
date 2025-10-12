@@ -43,19 +43,22 @@ By following this book, you’ll learn to:
 - Installed tools:
   ```bash
   cargo install mdbook
-```
+  ```
+  
+---
 
 ## Setup Instructions
 
 Clone this repo and serve the book locally:
-
+```bash
 git clone https://github.com/<your-username>/cluster-manager-book.git
 cd cluster-manager-book
 mdbook serve --open
-
+```
 
 You can now browse the live book at http://localhost:3000
 
+--- 
 
 ## License
 
