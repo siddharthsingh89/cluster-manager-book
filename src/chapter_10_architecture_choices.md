@@ -1,14 +1,7 @@
-Perfect direction. 👌
-
-Let’s now **adapt Chapter 10 – High-Level Architecture Choices** fully into the **context of a distributed database**, while keeping it beginner-friendly.
-This version will show how cluster management principles map directly to how databases like **CockroachDB, YugabyteDB, TiDB, or Spanner** organize their control and data planes.
-
----
-
 # **Chapter 10 – High-Level Architecture Choices (in the Context of a Distributed Database)**
 
 In the previous chapter, we identified *what* the cluster manager must achieve: reliability, scalability, and availability.
-Now we’ll explore *how to design it* — specifically, how a **distributed database** structures its architecture to achieve those goals.
+Now we’ll explore *how to design it* - specifically, how a **distributed database** structures its architecture to achieve those goals.
 
 Unlike a generic scheduler (like Kubernetes), a **distributed database** cluster manager is responsible not just for resources, but for **data correctness, consistency, and replication**.
 This adds new dimensions to architecture:
@@ -52,7 +45,7 @@ A distributed database typically consists of the following layers:
 
 ### **Centralized Control**
 
-Some systems maintain a *single metadata master* or *coordinator* responsible for global decisions — like assigning shards or managing schema updates.
+Some systems maintain a *single metadata master* or *coordinator* responsible for global decisions - like assigning shards or managing schema updates.
 
 **Examples:**
 
@@ -78,7 +71,7 @@ Some systems maintain a *single metadata master* or *coordinator* responsible fo
 ### **Decentralized / Consensus-Based Control**
 
 Here, metadata and decisions are replicated across multiple nodes using consensus protocols like **Raft** or **Paxos**.
-There’s no single permanent master — leadership is ephemeral and re-elected automatically.
+There’s no single permanent master - leadership is ephemeral and re-elected automatically.
 
 **Examples:**
 
@@ -188,7 +181,7 @@ Metadata moves less frequently than user data, so it’s safe to keep metadata s
 
 ---
 
-Sure — here’s **that section rewritten for a distributed database context**, focusing on architecture diagram, our design choice, and exercises:
+Sure - here’s **that section rewritten for a distributed database context**, focusing on architecture diagram, our design choice, and exercises:
 
 ---
 
@@ -230,12 +223,12 @@ Below is a conceptual architecture of a **distributed database cluster** with a 
 
 ### **How It Works**
 
-* **Management Plane** — interfaces for operators and administrators: cluster setup, scaling, and monitoring.
-* **Control Plane** — the “brain” that tracks metadata (like tablet or shard locations), decides where replicas live, and orchestrates rebalancing.
-* **Data Nodes** — store and serve actual data, execute queries, and replicate logs.
-* **Coordination Store (Raft/etcd/ZooKeeper)** — ensures consistent metadata view across control plane replicas.
+* **Management Plane** - interfaces for operators and administrators: cluster setup, scaling, and monitoring.
+* **Control Plane** - the “brain” that tracks metadata (like tablet or shard locations), decides where replicas live, and orchestrates rebalancing.
+* **Data Nodes** - store and serve actual data, execute queries, and replicate logs.
+* **Coordination Store (Raft/etcd/ZooKeeper)** - ensures consistent metadata view across control plane replicas.
 
-This architecture separates **control from data** — allowing independent scaling, clearer fault domains, and simpler recovery logic.
+This architecture separates **control from data** - allowing independent scaling, clearer fault domains, and simpler recovery logic.
 
 ---
 
@@ -298,7 +291,7 @@ It also aligns with systems like **CockroachDB**, **YugabyteDB**, and **TiDB**, 
 ---
 
  **Summary**
-We’ve now grounded our architecture in a **distributed database context** — where a **centralized metadata brain** coordinates **autonomous storage nodes**.
+We’ve now grounded our architecture in a **distributed database context** - where a **centralized metadata brain** coordinates **autonomous storage nodes**.
 This design makes strong consistency achievable without giving up elasticity, forming the foundation for the next chapters on APIs, membership, placement, and replication.
 
 ---
