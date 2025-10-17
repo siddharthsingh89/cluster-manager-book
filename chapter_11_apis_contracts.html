@@ -1,0 +1,621 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 11 - APIs &amp; Contracts</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-11---apis--contracts"><a class="header" href="#chapter-11---apis--contracts"><strong>Chapter 11 - APIs &amp; Contracts</strong></a></h1>
+<hr />
+<h2 id="111-why-contracts-matter"><a class="header" href="#111-why-contracts-matter"><strong>11.1 Why Contracts Matter</strong></a></h2>
+<p>In a distributed database, <strong>APIs are the boundaries of trust</strong>.
+They define what’s expected between:</p>
+<ul>
+<li>Control plane ↔ Data nodes</li>
+<li>Clients ↔ Cluster</li>
+<li>Internal services ↔ Each other</li>
+</ul>
+<p>These boundaries must be:</p>
+<ul>
+<li><strong>Explicit</strong> - clear message structures and semantics</li>
+<li><strong>Stable</strong> - versioned and backward-compatible</li>
+<li><strong>Observable</strong> - traceable and debuggable</li>
+</ul>
+<p>Poorly defined contracts often lead to subtle bugs - mismatched state, ghost replicas, or double commits.
+Hence, this chapter serves as the <strong>single reference section</strong> for all key APIs in our cluster manager.</p>
+<hr />
+<h2 id="112-apis"><a class="header" href="#112-apis"><strong>11.2 APIs</strong></a></h2>
+<h3 id="api-clientstore"><a class="header" href="#api-clientstore"><strong>API ClientStore</strong></a></h3>
+<pre><code>Write(KeyValue) -&gt; Ack  
+Read(Key) -&gt; ValueResult  
+Delete(Key) -&gt; Ack  
+BatchWrite(BatchItems) -&gt; BatchAck  
+RangeQuery(RangeRequest) -&gt; RangeResult  
+</code></pre>
+<p>Supports CRUD, batch, and range operations for client access.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait ClientStore {
+    fn write(&amp;self, kv: KeyValue) -&gt; Ack;
+    fn read(&amp;self, key: String) -&gt; ValueResult;
+    fn delete(&amp;self, key: String) -&gt; Ack;
+    fn batch_write(&amp;self, items: Vec&lt;KeyValue&gt;) -&gt; BatchAck;
+    fn range_query(&amp;self, req: RangeRequest) -&gt; RangeResult;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct KeyValue { pub key: String, pub value: Vec&lt;u8&gt; }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ValueResult { pub value: Option&lt;Vec&lt;u8&gt;&gt;, pub version: u64 }
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="2-replication--log-contracts"><a class="header" href="#2-replication--log-contracts"><strong>(2) Replication &amp; Log Contracts</strong></a></h2>
+<h3 id="api-replicasync"><a class="header" href="#api-replicasync"><strong>API ReplicaSync</strong></a></h3>
+<pre><code>AppendEntries(LogBatch) -&gt; AppendAck  
+FetchEntries(LogRequest) -&gt; LogBatch  
+RequestSnapshot(SnapshotRequest) -&gt; SnapshotData  
+ApplySnapshot(SnapshotData) -&gt; SnapshotAck  
+</code></pre>
+<p>Handles log replication, snapshotting, and state synchronization between replicas.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait ReplicaSync {
+    fn append_entries(&amp;self, batch: LogBatch) -&gt; AppendAck;
+    fn fetch_entries(&amp;self, req: LogRequest) -&gt; LogBatch;
+    fn request_snapshot(&amp;self, req: SnapshotRequest) -&gt; SnapshotData;
+    fn apply_snapshot(&amp;self, snapshot: SnapshotData) -&gt; SnapshotAck;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LogBatch { pub entries: Vec&lt;LogEntry&gt; }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LogEntry { pub key: String, pub value: Vec&lt;u8&gt;, pub version: u64 }
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="3-membership--discovery-contracts"><a class="header" href="#3-membership--discovery-contracts"><strong>(3) Membership &amp; Discovery Contracts</strong></a></h2>
+<h3 id="api-clustermembership"><a class="header" href="#api-clustermembership"><strong>API ClusterMembership</strong></a></h3>
+<pre><code>Join(NodeInfo) -&gt; JoinAck  
+Leave(NodeId) -&gt; Ack  
+Heartbeat(HealthPing) -&gt; HealthAck  
+GetClusterView() -&gt; ClusterView  
+</code></pre>
+<p>Defines node lifecycle and cluster topology exchange.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait ClusterMembership {
+    fn join(&amp;self, node: NodeInfo) -&gt; JoinAck;
+    fn leave(&amp;self, id: NodeId) -&gt; Ack;
+    fn heartbeat(&amp;self, ping: HealthPing) -&gt; HealthAck;
+    fn get_cluster_view(&amp;self) -&gt; ClusterView;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct NodeInfo { pub id: String, pub addr: String, pub capacity: f64 }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ClusterView { pub members: Vec&lt;NodeInfo&gt;, pub version: u64 }
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="4-placement--replica-assignment-contracts"><a class="header" href="#4-placement--replica-assignment-contracts"><strong>(4) Placement &amp; Replica Assignment Contracts</strong></a></h2>
+<h3 id="api-placementservice"><a class="header" href="#api-placementservice"><strong>API PlacementService</strong></a></h3>
+<pre><code>GetReplicas(Key) -&gt; ReplicaSet  
+Rebalance(RebalanceRequest) -&gt; RebalancePlan  
+</code></pre>
+<p>Determines data placement and generates rebalancing plans.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait PlacementService {
+    fn get_replicas(&amp;self, key: String) -&gt; ReplicaSet;
+    fn rebalance(&amp;self, req: RebalanceRequest) -&gt; RebalancePlan;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ReplicaSet { pub replicas: Vec&lt;String&gt;, pub leader: Option&lt;String&gt; }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RebalanceRequest { pub reason: String }
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="5-rebalancing--data-movement-contracts"><a class="header" href="#5-rebalancing--data-movement-contracts"><strong>(5) Rebalancing &amp; Data Movement Contracts</strong></a></h2>
+<h3 id="api-datamover"><a class="header" href="#api-datamover"><strong>API DataMover</strong></a></h3>
+<pre><code>TransferPartition(PartitionMove) -&gt; Ack  
+CheckRebalanceStatus(PlanId) -&gt; RebalanceStatus  
+</code></pre>
+<p>Moves partitions or shards between nodes during scaling or repair.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait DataMover {
+    fn transfer_partition(&amp;self, mv: PartitionMove) -&gt; Ack;
+    fn check_rebalance_status(&amp;self, plan_id: String) -&gt; RebalanceStatus;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct PartitionMove {
+    pub partition_id: String,
+    pub source: String,
+    pub target: String,
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="6-replication-coordination-consensus-contracts"><a class="header" href="#6-replication-coordination-consensus-contracts"><strong>(6) Replication Coordination (Consensus) Contracts</strong></a></h2>
+<h3 id="api-consensusprotocol"><a class="header" href="#api-consensusprotocol"><strong>API ConsensusProtocol</strong></a></h3>
+<pre><code>RequestVote(VoteRequest) -&gt; VoteResponse  
+AppendEntries(LogBatch) -&gt; AppendAck  
+CommitIndex(UpdateCommit) -&gt; Ack  
+</code></pre>
+<p>Implements Raft/Paxos-style replication and leader election.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait ConsensusProtocol {
+    fn request_vote(&amp;self, req: VoteRequest) -&gt; VoteResponse;
+    fn append_entries(&amp;self, batch: LogBatch) -&gt; AppendAck;
+    fn commit_index(&amp;self, commit: UpdateCommit) -&gt; Ack;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct VoteRequest { pub term: u64, pub candidate_id: String }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct VoteResponse { pub term: u64, pub granted: bool }
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="7-recovery--repair-contracts"><a class="header" href="#7-recovery--repair-contracts"><strong>(7) Recovery &amp; Repair Contracts</strong></a></h2>
+<h3 id="api-recoveryservice"><a class="header" href="#api-recoveryservice"><strong>API RecoveryService</strong></a></h3>
+<pre><code>FetchSegment(SegmentRequest) -&gt; SegmentData  
+ReplayLog(LogBatch) -&gt; ReplayAck  
+FetchSnapshot(PartitionId) -&gt; SnapshotData  
+</code></pre>
+<p>Handles crash recovery and repair of corrupted replicas.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait RecoveryService {
+    fn fetch_segment(&amp;self, req: SegmentRequest) -&gt; SegmentData;
+    fn replay_log(&amp;self, batch: LogBatch) -&gt; ReplayAck;
+    fn fetch_snapshot(&amp;self, pid: String) -&gt; SnapshotData;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SegmentData { pub entries: Vec&lt;LogEntry&gt; }
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="8-configuration--metadata-contracts"><a class="header" href="#8-configuration--metadata-contracts"><strong>(8) Configuration &amp; Metadata Contracts</strong></a></h2>
+<h3 id="api-configapi"><a class="header" href="#api-configapi"><strong>API ConfigAPI</strong></a></h3>
+<pre><code>UpdateConfig(ClusterConfig) -&gt; Ack  
+GetConfig() -&gt; ClusterConfig  
+WatchConfig(NodeId) -&gt; Stream&lt;ConfigChange&gt;  
+</code></pre>
+<p>Allows the control plane to propagate configuration changes and observe updates.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait ConfigAPI {
+    fn update_config(&amp;self, cfg: ClusterConfig) -&gt; Ack;
+    fn get_config(&amp;self) -&gt; ClusterConfig;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ClusterConfig {
+    pub replication_factor: u8,
+    pub read_quorum: u8,
+    pub write_quorum: u8,
+    pub compaction_policy: String,
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="9-security--multi-tenancy-contracts"><a class="header" href="#9-security--multi-tenancy-contracts"><strong>(9) Security &amp; Multi-Tenancy Contracts</strong></a></h2>
+<h3 id="api-authservice"><a class="header" href="#api-authservice"><strong>API AuthService</strong></a></h3>
+<pre><code>Login(Credentials) -&gt; AuthToken  
+Authorize(AccessRequest) -&gt; AccessResult  
+GetTenantLimits(TenantId) -&gt; TenantLimits  
+</code></pre>
+<p>Supports authentication, authorization, and tenant isolation.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait AuthService {
+    fn login(&amp;self, creds: Credentials) -&gt; AuthToken;
+    fn authorize(&amp;self, req: AccessRequest) -&gt; AccessResult;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Credentials { pub user: String, pub password: String }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TenantLimits { pub max_storage: u64, pub max_throughput: u64 }
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="10-observability--tooling-contracts"><a class="header" href="#10-observability--tooling-contracts"><strong>(10) Observability &amp; Tooling Contracts</strong></a></h2>
+<h3 id="api-monitorservice"><a class="header" href="#api-monitorservice"><strong>API MonitorService</strong></a></h3>
+<pre><code>GetMetrics() -&gt; MetricsSnapshot  
+HealthCheck() -&gt; HealthStatus  
+SubmitTrace(TraceReport) -&gt; Ack  
+</code></pre>
+<p>Used for introspection, monitoring, and performance tracing.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait MonitorService {
+    fn get_metrics(&amp;self) -&gt; MetricsSnapshot;
+    fn health_check(&amp;self) -&gt; HealthStatus;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MetricsSnapshot { pub cpu: f64, pub mem: f64, pub io: f64 }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct HealthStatus { pub status: String }
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="11-testing--fault-injection-contracts"><a class="header" href="#11-testing--fault-injection-contracts"><strong>(11) Testing &amp; Fault Injection Contracts</strong></a></h2>
+<h3 id="api-faultinjector"><a class="header" href="#api-faultinjector"><strong>API FaultInjector</strong></a></h3>
+<pre><code>InjectFault(FaultRequest) -&gt; Ack  
+RunConsistencyCheck(Range) -&gt; ConsistencyReport  
+</code></pre>
+<p>Used during testing to simulate failures and validate cluster correctness.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait FaultInjector {
+    fn inject_fault(&amp;self, req: FaultRequest) -&gt; Ack;
+    fn run_consistency_check(&amp;self, range: (String, String)) -&gt; ConsistencyReport;
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct FaultRequest { pub fault_type: String, pub duration_ms: u64 }
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<p><strong>This set now fully covers all system concerns:</strong></p>
+<ul>
+<li><strong>Client</strong> (CRUD)</li>
+<li><strong>Replication &amp; Consensus</strong></li>
+<li><strong>Membership</strong></li>
+<li><strong>Placement &amp; Balancing</strong></li>
+<li><strong>Recovery</strong></li>
+<li><strong>Configuration</strong></li>
+<li><strong>Security</strong></li>
+<li><strong>Observability</strong></li>
+<li><strong>Testing</strong></li>
+</ul>
+<h2 id="this-may-evolve-once-individual-components-are-implemented-i-will-update-the-contracts-here-as-well"><a class="header" href="#this-may-evolve-once-individual-components-are-implemented-i-will-update-the-contracts-here-as-well">This may evolve once individual components are implemented. I will update the contracts here as well.</a></h2>
+<h2 id="layered-api-contract-map"><a class="header" href="#layered-api-contract-map"><strong>Layered API Contract Map</strong></a></h2>
+<pre><code>┌─────────────────────────────────────────────┐
+│                 CLIENT PLANE                │
+│─────────────────────────────────────────────│
+│  (1) ClientStore API                        │
+│     • Write / Read / Delete / RangeQuery    │
+│  (9) AuthService API                        │
+│     • Login / Authorize / TenantLimits      │
+└─────────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────┐
+│               DATA PLANE                    │
+│─────────────────────────────────────────────│
+│  (2) ReplicaSync API                        │
+│     • AppendEntries / FetchEntries          │
+│  (6) ConsensusProtocol API                  │
+│     • RequestVote / AppendEntries / Commit  │
+│  (5) DataMover API                          │
+│     • TransferPartition / RebalanceStatus   │
+│  (7) RecoveryService API                    │
+│     • FetchSegment / ReplayLog / Snapshot   │
+└─────────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────┐
+│              CONTROL PLANE                  │
+│─────────────────────────────────────────────│
+│  (3) ClusterMembership API                  │
+│     • Join / Leave / Heartbeat / ClusterView│
+│  (4) PlacementService API                   │
+│     • GetReplicas / RebalancePlan           │
+│  (8) ConfigAPI                              │
+│     • UpdateConfig / GetConfig / Watch      │
+│  (10) MonitorService API                    │
+│     • Metrics / HealthCheck / Tracing       │
+└─────────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────┐
+│                SYSTEM PLANE                 │
+│─────────────────────────────────────────────│
+│  (11) FaultInjector API                     │
+│     • InjectFault / ConsistencyCheck        │
+│  (Logging, Metrics Export, Event Streams)   │
+│  (Audit / Security Enforcement)             │
+└─────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h3 id="layer-overview"><a class="header" href="#layer-overview"><strong>Layer Overview</strong></a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Plane</th><th>Purpose</th><th>Example Components</th></tr></thead><tbody>
+<tr><td><strong>Client Plane</strong></td><td>User-facing APIs that provide CRUD, authentication, and access control</td><td>REST/GRPC frontend, SDKs</td></tr>
+<tr><td><strong>Data Plane</strong></td><td>Core data replication, consensus, and recovery mechanisms</td><td>Storage engine, log replication, compaction, WAL</td></tr>
+<tr><td><strong>Control Plane</strong></td><td>Cluster-wide coordination, configuration, and monitoring</td><td>Scheduler, config manager, health monitor</td></tr>
+<tr><td><strong>System Plane</strong></td><td>Background automation, testing hooks, fault injection, observability pipeline</td><td>Chaos tests, system repair daemons</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h3 id="inter-plane-relationships"><a class="header" href="#inter-plane-relationships"><strong>Inter-Plane Relationships</strong></a></h3>
+<ul>
+<li><strong>Client → Control Plane:</strong> Authenticated clients call cluster endpoints (via placement service) to locate data nodes.</li>
+<li><strong>Control Plane → Data Plane:</strong> PlacementService and ConfigAPI update data-plane replicas with new assignments and configuration.</li>
+<li><strong>Data Plane → System Plane:</strong> Exposes metrics, health, and logs; FaultInjector simulates load/failures for testing resilience.</li>
+<li><strong>Control Plane ↔ System Plane:</strong> Configuration, audit, and monitoring systems interact to manage SLA and tenant-level enforcement.</li>
+</ul>
+<hr />
+<h3 id="key-design-insights"><a class="header" href="#key-design-insights"><strong>Key Design Insights</strong></a></h3>
+<ol>
+<li>
+<p><strong>Separation of Planes = Clarity of Responsibility</strong>
+Each plane owns its domain: Control for coordination, Data for consistency, System for safety, Client for access.</p>
+</li>
+<li>
+<p><strong>Contracts as Boundaries, not Just APIs</strong>
+These contracts aren’t just methods — they define what can change independently (e.g., swapping Raft for Paxos doesn’t break ClientStore).</p>
+</li>
+<li>
+<p><strong>Consistent Serialization</strong>
+Every API uses structured contracts (<code>serde</code> in Rust) for cross-language and backward compatibility.</p>
+</li>
+<li>
+<p><strong>Observability Everywhere</strong>
+Every plane emits metrics and traces — ensuring operational goals (from Chapter 9) can be enforced.</p>
+</li>
+</ol>
+<hr />
+<h2 id="118-exercises-and-challenges"><a class="header" href="#118-exercises-and-challenges"><strong>11.8 Exercises and Challenges</strong></a></h2>
+<ol>
+<li>
+<p><strong>Design Your Own Control API</strong>
+Add a <code>ScaleCluster</code> or <code>DrainNode</code> API to the <code>ClusterControl</code> trait.
+What parameters would you include, and how would you ensure it’s idempotent?</p>
+</li>
+<li>
+<p><strong>Consistency Tuning</strong>
+Suppose you want a “read-your-own-writes” guarantee for queries.
+Which API would you modify - client or replication layer - and how?</p>
+</li>
+<li>
+<p><strong>Error Injection Drill</strong>
+Create a simulation where a <code>NodeUnavailable</code> error occurs during <code>AppendEntries</code>.
+How should the leader react to maintain consistency?</p>
+</li>
+<li>
+<p><strong>Version Compatibility</strong>
+Introduce a <code>NodeHealthV2</code> struct with an additional <code>disk_usage</code> field.
+How would you deploy this without breaking existing nodes?</p>
+</li>
+<li>
+<p><strong>Mini Project - WAL Sync Contract</strong>
+Write a new API <code>SyncWALSegment(start, end)</code> between replicas.
+Describe how it would integrate with the replication layer safely.</p>
+</li>
+</ol>
+<hr />
+<p><strong>Summary</strong></p>
+<p>We’ve now built the <strong>contractual backbone</strong> of our distributed database.
+These APIs - from query execution to node coordination and replication - form the foundation of <strong>trust and predictability</strong> in the cluster.</p>
+<p>In the next chapter, we’ll explore <strong>membership and discovery</strong>, showing how new nodes join, get validated, and are integrated into this API ecosystem.</p>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_10_architecture_choices.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_12_membership_discovery.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_10_architecture_choices.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_12_membership_discovery.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

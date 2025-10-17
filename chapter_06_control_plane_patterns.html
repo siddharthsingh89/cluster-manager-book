@@ -1,0 +1,667 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 6 - Control Plane Patterns &amp; Primitives</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-6-control-plane-patterns--primitives"><a class="header" href="#chapter-6-control-plane-patterns--primitives"><strong>Chapter 6: Control Plane Patterns &amp; Primitives</strong></a></h1>
+<blockquote>
+<p><em>“If the data plane moves the bytes, the control plane moves the decisions.”</em></p>
+</blockquote>
+<hr />
+<h2 id="61-what-is-a-control-plane"><a class="header" href="#61-what-is-a-control-plane"><strong>6.1 What Is a Control Plane?</strong></a></h2>
+<p>In any distributed system, there are two fundamental planes:</p>
+<ul>
+<li><strong>Data Plane</strong> - The components that handle actual workload data (e.g., serving requests, running containers, storing rows).</li>
+<li><strong>Control Plane</strong> - The components that decide <em>what should happen</em> in the data plane (e.g., scheduling, configuration updates, coordination).</li>
+</ul>
+<p>The <strong>control plane</strong> orchestrates the cluster’s behavior, providing a consistent, observable, and modifiable <em>state of intent</em>.</p>
+<h3 id="examples"><a class="header" href="#examples"><strong>Examples</strong></a></h3>
+<ul>
+<li><strong>Kubernetes:</strong> The control plane includes the API Server, Controller Manager, Scheduler, and etcd.</li>
+<li><strong>Consul:</strong> Control plane provides service registry, health checks, and key-value configuration.</li>
+<li><strong>Kafka:</strong> The Controller node coordinates partition leaders, replication, and rebalances.</li>
+</ul>
+<hr />
+<h2 id="62-core-responsibilities"><a class="header" href="#62-core-responsibilities"><strong>6.2 Core Responsibilities</strong></a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Responsibility</th><th>Description</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>State Management</strong></td><td>Maintains desired vs. actual state</td><td>etcd stores the cluster desired state</td></tr>
+<tr><td><strong>Scheduling</strong></td><td>Decides placement of workloads</td><td>Kubernetes Scheduler assigns Pods to Nodes</td></tr>
+<tr><td><strong>Coordination</strong></td><td>Ensures nodes agree on shared state</td><td>Raft in etcd, Zookeeper in Kafka</td></tr>
+<tr><td><strong>Configuration Distribution</strong></td><td>Propagates config updates to all nodes</td><td>Envoy xDS protocol</td></tr>
+<tr><td><strong>Monitoring &amp; Reconciliation</strong></td><td>Watches system state, triggers fixes</td><td>K8s controllers constantly reconcile</td></tr>
+<tr><td><strong>Security &amp; Policy</strong></td><td>Manages identity, RBAC, and admission control</td><td>Kubernetes Admission Webhooks</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h2 id="63-primitives-of-a-control-plane"><a class="header" href="#63-primitives-of-a-control-plane"><strong>6.3 Primitives of a Control Plane</strong></a></h2>
+<p>Every control plane is built upon a set of <strong>primitives</strong> - the atomic operations and design elements that higher-level patterns are composed from.</p>
+<h3 id="1-state-store"><a class="header" href="#1-state-store">1. <strong>State Store</strong></a></h3>
+<p>A highly consistent database storing the system’s <em>desired state</em>.
+Often implemented via consensus systems like <strong>Raft</strong> or <strong>Paxos</strong>.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-plaintext">etcd/
+ ├── /pods/
+ │    ├── podA -&gt; {"node": "worker-1", "status": "Running"}
+ │    └── podB -&gt; {"node": "worker-2", "status": "Pending"}
+ └── /nodes/
+      ├── worker-1 -&gt; {"cpu": 60%}
+      └── worker-2 -&gt; {"cpu": 80%}
+</code></pre>
+<h3 id="2-watcher--observer"><a class="header" href="#2-watcher--observer">2. <strong>Watcher / Observer</strong></a></h3>
+<p>Allows components to <em>subscribe</em> to changes in the state store (like a pub-sub model).</p>
+<p>Example (etcd Watch API):</p>
+<pre><code class="language-go">watchChan := client.Watch(ctx, "/pods/", etcd.WithPrefix())
+for resp := range watchChan {
+    for _, ev := range resp.Events {
+        fmt.Printf("Updated: %s %q : %q\n", ev.Type, ev.Kv.Key, ev.Kv.Value)
+    }
+}
+</code></pre>
+<h3 id="3-reconciler"><a class="header" href="#3-reconciler">3. <strong>Reconciler</strong></a></h3>
+<p>A control loop that compares <strong>desired state</strong> (from store) and <strong>actual state</strong> (from data plane), applying actions to converge them.</p>
+<p><strong>Pattern:</strong></p>
+<pre><code>loop {
+    desired = get_desired_state()
+    actual = observe_system()
+    if desired != actual:
+        take_action()
+}
+</code></pre>
+<p>Kubernetes controllers are a direct application of this <strong>reconciliation pattern</strong>.</p>
+<h3 id="4-leader-election"><a class="header" href="#4-leader-election">4. <strong>Leader Election</strong></a></h3>
+<p>To ensure single coordination source for specific tasks.</p>
+<p><strong>Example (Raft-style):</strong></p>
+<pre><code>Nodes: A, B, C
+Timeouts randomly staggered
+→ Node A times out first → becomes candidate
+→ Requests votes → gains majority → becomes Leader
+→ Others follow until leader fails
+</code></pre>
+<h3 id="5-work-queue--controller-queue"><a class="header" href="#5-work-queue--controller-queue">5. <strong>Work Queue / Controller Queue</strong></a></h3>
+<p>Many control planes use internal queues to process updates asynchronously and retry failures.</p>
+<hr />
+<h2 id="64-control-plane-design-patterns"><a class="header" href="#64-control-plane-design-patterns"><strong>6.4 Control Plane Design Patterns</strong></a></h2>
+<h3 id="pattern-1-declarative-control-plane"><a class="header" href="#pattern-1-declarative-control-plane"><strong>Pattern 1: Declarative Control Plane</strong></a></h3>
+<p>Users declare <em>what they want</em>, not <em>how to do it</em>.
+Controllers then reconcile the cluster towards that goal.</p>
+<p><strong>Used in:</strong> Kubernetes, Terraform, Pulumi.</p>
+<pre><code class="language-yaml"># Kubernetes Example
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+</code></pre>
+<p>→ Control plane ensures <code>Pod:web</code> is created and running on a node.</p>
+<p><strong>Key Benefit:</strong> Self-healing, automated correction, scalable coordination.</p>
+<hr />
+<h3 id="pattern-2-event-driven-control-plane"><a class="header" href="#pattern-2-event-driven-control-plane"><strong>Pattern 2: Event-Driven Control Plane</strong></a></h3>
+<p>State changes trigger asynchronous actions in controllers.
+Often implemented with watches, message queues, or event buses.</p>
+<p><strong>Used in:</strong> Envoy xDS, Istio Pilot, Control loops in etcd/K8s.</p>
+<p><strong>Flow:</strong></p>
+<pre><code>Change → Event → Controller reacts → Data plane update
+</code></pre>
+<hr />
+<h3 id="pattern-3-centralized-vs-distributed-control"><a class="header" href="#pattern-3-centralized-vs-distributed-control"><strong>Pattern 3: Centralized vs. Distributed Control</strong></a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Model</th><th>Pros</th><th>Cons</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>Centralized Control Plane</strong></td><td>Simpler, consistent decisions</td><td>Bottlenecks, single failure</td><td>Kubernetes API Server</td></tr>
+<tr><td><strong>Distributed Control Plane</strong></td><td>Scalable, fault-tolerant</td><td>Harder to maintain consistency</td><td>Consul, Istio, HashiCorp Nomad</td></tr>
+</tbody></table>
+</div>
+<p><strong>Design Trade-off:</strong></p>
+<ul>
+<li>Centralized for consistency → easier reasoning</li>
+<li>Distributed for scalability → more autonomy</li>
+</ul>
+<hr />
+<h3 id="pattern-4-control-plane-federation"><a class="header" href="#pattern-4-control-plane-federation"><strong>Pattern 4: Control Plane Federation</strong></a></h3>
+<p>Multiple control planes coordinating across regions or clusters.</p>
+<p><strong>Example:</strong></p>
+<ul>
+<li><em>Kubernetes Federation</em> allows multi-cluster control.</li>
+<li><em>Cloud load balancers</em> operate across data centers.</li>
+</ul>
+<p><strong>Challenge:</strong> Ensuring <strong>eventual consistency</strong> and <strong>conflict resolution</strong>.</p>
+<hr />
+<h2 id="65-design-example-mini-control-plane"><a class="header" href="#65-design-example-mini-control-plane"><strong>6.5 Design Example: Mini Control Plane</strong></a></h2>
+<p>Let’s design a simple control plane for a <strong>job scheduler</strong>.</p>
+<h3 id="components"><a class="header" href="#components"><strong>Components</strong></a></h3>
+<ol>
+<li><strong>JobStore (etcd)</strong> - desired jobs</li>
+<li><strong>Scheduler Controller</strong> - assigns job to node</li>
+<li><strong>Agent (Worker)</strong> - executes jobs and reports back</li>
+</ol>
+<h3 id="flow"><a class="header" href="#flow"><strong>Flow</strong></a></h3>
+<pre><code>User → API → JobStore (/jobs/j1: Pending)
+Scheduler watches /jobs → assigns NodeA
+→ NodeA starts execution
+→ Reports status back (/jobs/j1: Running)
+→ Reconciler verifies &amp; updates
+</code></pre>
+<p><strong>Key Concepts:</strong></p>
+<ul>
+<li>Watchers notify controllers</li>
+<li>Controllers act to move system toward desired state</li>
+<li>Agents reflect actual system status</li>
+</ul>
+<hr />
+<h2 id="66-common-challenges"><a class="header" href="#66-common-challenges"><strong>6.6 Common Challenges</strong></a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Challenge</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Event Storms</strong></td><td>Rapid state changes can overwhelm watchers and queues</td></tr>
+<tr><td><strong>Split Brain</strong></td><td>Multiple leaders lead to conflicting decisions</td></tr>
+<tr><td><strong>Reconciliation Lag</strong></td><td>Delay in observing actual state causes drift</td></tr>
+<tr><td><strong>State Explosion</strong></td><td>Thousands of objects create scaling pressure on the control store</td></tr>
+<tr><td><strong>Security</strong></td><td>Misconfigured RBAC or trust boundaries can expose sensitive control actions</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h2 id="67-exercises"><a class="header" href="#67-exercises"><strong>6.7 Exercises</strong></a></h2>
+<ol>
+<li>
+<p><strong>Conceptual:</strong>
+Explain the difference between <em>desired state</em> and <em>observed state</em>. How does a control loop help maintain cluster reliability?</p>
+</li>
+<li>
+<p><strong>Practical:</strong>
+Write pseudocode for a simple controller that ensures all nodes have a config file <code>/etc/app.conf</code> matching the version stored in etcd.</p>
+</li>
+<li>
+<p><strong>Analysis:</strong>
+Compare Kubernetes’ reconciliation pattern to that of Consul’s service catalog updates. What are the trade-offs?</p>
+</li>
+<li>
+<p><strong>Design:</strong>
+Design a leader election algorithm for a control plane where nodes may have intermittent network connectivity.</p>
+</li>
+<li>
+<p><strong>Debugging:</strong>
+What metrics would you collect from a control plane to detect reconciliation lag or misconfigurations?</p>
+</li>
+</ol>
+<hr />
+<h2 id="68-design-challenges"><a class="header" href="#68-design-challenges"><strong>6.8 Design Challenges</strong></a></h2>
+<ol>
+<li>
+<p><strong>Mini Control Plane Implementation:</strong>
+Build a small control plane in Rust or Go that:</p>
+<ul>
+<li>Stores “tasks” in memory</li>
+<li>Watches them for updates</li>
+<li>Spawns worker goroutines to simulate nodes</li>
+<li>Logs reconciliation actions</li>
+</ul>
+</li>
+<li>
+<p><strong>Resilient Watch System:</strong>
+Design a watch mechanism that can survive transient disconnections without missing updates.</p>
+</li>
+<li>
+<p><strong>Multi-Leader Simulation:</strong>
+Simulate a split-brain scenario and propose a detection + recovery mechanism.</p>
+</li>
+<li>
+<p><strong>Policy-Driven Scheduling:</strong>
+Extend your mini control plane to support policies like CPU limits or node labels.</p>
+</li>
+</ol>
+<hr />
+<h2 id="69-solution-mini-control-plane"><a class="header" href="#69-solution-mini-control-plane"><strong>6.9 Solution: Mini Control plane</strong></a></h2>
+<h3 id="illustration-mini-control-plane-design"><a class="header" href="#illustration-mini-control-plane-design"><strong>Illustration: Mini Control Plane Design</strong></a></h3>
+<p>Below is a conceptual flow of a <strong>minimal control plane</strong> that manages background “Jobs” and schedules them to worker nodes.</p>
+<pre><code>                          ┌────────────────────────────┐
+                          │        User / CLI          │
+                          │  (Submits Job Spec)        │
+                          └────────────┬───────────────┘
+                                       │
+                                       ▼
+                             ┌───────────────────┐
+                             │   API / JobStore  │
+                             │  (etcd or memory) │
+                             └────────┬──────────┘
+                                      │ (watch jobs/)
+                     ┌────────────────┴──────────────────┐
+                     ▼                                   ▼
+        ┌─────────────────────┐             ┌─────────────────────┐
+        │  Scheduler          │             │  Reconciler         │
+        │ Assigns Jobs to     │             │ Ensures Desired ==  │
+        │ available Nodes     │             │ Actual state        │
+        └─────────┬───────────┘             └──────────┬──────────┘
+                  │ (update store)                     │ (trigger corrections)
+                  ▼                                    ▼
+            ┌──────────────────────┐        ┌──────────────────────┐
+            │  Worker Node (Agent) │        │  Worker Node (Agent) │
+            │  Executes jobs and   │        │  Reports status      │
+            │  updates state       │        │  back to store       │
+            └──────────────────────┘        └──────────────────────┘
+
+                             &lt;--- Feedback Loop ---&gt;
+                             Reconciler compares desired vs. actual
+                             and reschedules as needed
+</code></pre>
+<hr />
+<h3 id="go-version---minimal-control-plane-prototype"><a class="header" href="#go-version---minimal-control-plane-prototype"><strong>Go Version - Minimal Control Plane Prototype</strong></a></h3>
+<p>Here’s a minimal Go prototype demonstrating a control plane loop using a shared in-memory store.</p>
+<pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "sync"
+    "time"
+)
+
+type Job struct {
+    ID     string
+    Node   string
+    Status string
+}
+
+type Node struct {
+    ID      string
+    Running bool
+}
+
+// Shared in-memory “etcd”
+var jobStore = struct {
+    sync.RWMutex
+    jobs map[string]*Job
+}{jobs: make(map[string]*Job)}
+
+func scheduler(nodes []Node) {
+    for {
+        jobStore.Lock()
+        for _, job := range jobStore.jobs {
+            if job.Status == "Pending" {
+                for _, n := range nodes {
+                    if !n.Running {
+                        fmt.Printf("[Scheduler] Assigning job %s → %s\n", job.ID, n.ID)
+                        job.Node = n.ID
+                        job.Status = "Running"
+                        break
+                    }
+                }
+            }
+        }
+        jobStore.Unlock()
+        time.Sleep(2 * time.Second)
+    }
+}
+
+func worker(id string) {
+    for {
+        jobStore.Lock()
+        for _, job := range jobStore.jobs {
+            if job.Node == id &amp;&amp; job.Status == "Running" {
+                fmt.Printf("[Worker %s] Executing %s...\n", id, job.ID)
+                time.Sleep(3 * time.Second)
+                job.Status = "Completed"
+                fmt.Printf("[Worker %s] Job %s done.\n", id, job.ID)
+            }
+        }
+        jobStore.Unlock()
+        time.Sleep(1 * time.Second)
+    }
+}
+
+func reconciler() {
+    for {
+        jobStore.RLock()
+        for _, job := range jobStore.jobs {
+            if job.Status != "Completed" &amp;&amp; job.Node == "" {
+                fmt.Printf("[Reconciler] Found unassigned job: %s\n", job.ID)
+            }
+        }
+        jobStore.RUnlock()
+        time.Sleep(5 * time.Second)
+    }
+}
+
+func main() {
+    nodes := []Node{{ID: "n1"}, {ID: "n2"}}
+    jobStore.jobs["job1"] = &amp;Job{ID: "job1", Status: "Pending"}
+    jobStore.jobs["job2"] = &amp;Job{ID: "job2", Status: "Pending"}
+
+    go scheduler(nodes)
+    go reconciler()
+    go worker("n1")
+    go worker("n2")
+
+    select {} // run forever
+}
+</code></pre>
+<p><strong>Concepts Shown</strong></p>
+<ul>
+<li>The <strong>Scheduler</strong> assigns jobs to free nodes.</li>
+<li>The <strong>Workers</strong> simulate job execution and update the job state.</li>
+<li>The <strong>Reconciler</strong> detects jobs stuck in an unassigned state.</li>
+</ul>
+<hr />
+<h3 id="rust-version---simplified-control-plane-loop"><a class="header" href="#rust-version---simplified-control-plane-loop"><strong>Rust Version - Simplified Control Plane Loop</strong></a></h3>
+<p>Below is a Rust version showing the same control plane pattern using threads and shared state (<code>Arc&lt;Mutex&lt;&gt;&gt;</code>):</p>
+<pre><pre class="playground"><code class="language-rust">use std::{sync::{Arc, Mutex}, thread, time::Duration};
+
+#[derive(Clone)]
+struct Job {
+    id: String,
+    node: Option&lt;String&gt;,
+    status: String,
+}
+
+type JobStore = Arc&lt;Mutex&lt;Vec&lt;Job&gt;&gt;&gt;;
+
+fn scheduler(store: JobStore, nodes: Vec&lt;String&gt;) {
+    loop {
+        let mut jobs = store.lock().unwrap();
+        for job in jobs.iter_mut() {
+            if job.status == "Pending" {
+                if let Some(node) = nodes.iter().find(|_| true) {
+                    println!("[Scheduler] Assigning {} → {}", job.id, node);
+                    job.node = Some(node.clone());
+                    job.status = "Running".to_string();
+                }
+            }
+        }
+        drop(jobs);
+        thread::sleep(Duration::from_secs(2));
+    }
+}
+
+fn worker(store: JobStore, node: String) {
+    loop {
+        let mut jobs = store.lock().unwrap();
+        for job in jobs.iter_mut() {
+            if job.node.as_deref() == Some(&amp;node) &amp;&amp; job.status == "Running" {
+                println!("[Worker {}] Executing {}", node, job.id);
+                thread::sleep(Duration::from_secs(3));
+                job.status = "Completed".to_string();
+                println!("[Worker {}] Job {} done.", node, job.id);
+            }
+        }
+        drop(jobs);
+        thread::sleep(Duration::from_secs(1));
+    }
+}
+
+fn reconciler(store: JobStore) {
+    loop {
+        let jobs = store.lock().unwrap();
+        for job in jobs.iter() {
+            if job.node.is_none() &amp;&amp; job.status != "Completed" {
+                println!("[Reconciler] Unassigned job detected: {}", job.id);
+            }
+        }
+        drop(jobs);
+        thread::sleep(Duration::from_secs(4));
+    }
+}
+
+fn main() {
+    let store: JobStore = Arc::new(Mutex::new(vec![
+        Job { id: "job1".into(), node: None, status: "Pending".into() },
+        Job { id: "job2".into(), node: None, status: "Pending".into() },
+    ]));
+
+    let nodes = vec!["n1".into(), "n2".into()];
+
+    let s_store = store.clone();
+    let r_store = store.clone();
+    let w1_store = store.clone();
+    let w2_store = store.clone();
+
+    thread::spawn(move || scheduler(s_store, nodes.clone()));
+    thread::spawn(move || reconciler(r_store));
+    thread::spawn(move || worker(w1_store, "n1".into()));
+    thread::spawn(move || worker(w2_store, "n2".into()));
+
+    loop { thread::sleep(Duration::from_secs(1)); }
+}</code></pre></pre>
+<p><strong>Concepts Demonstrated</strong></p>
+<ul>
+<li>Shared state (<code>Arc&lt;Mutex&lt;Vec&lt;Job&gt;&gt;&gt;</code>) mimics etcd or a control store.</li>
+<li>Independent threads act as controllers and workers.</li>
+<li>Shows <strong>watch-reconcile-execute loop</strong> fundamental to control planes.</li>
+</ul>
+<hr />
+<h2 id="610-summary"><a class="header" href="#610-summary"><strong>6.10 Summary</strong></a></h2>
+<ul>
+<li>The <strong>control plane</strong> is the decision-making layer of any cluster manager.</li>
+<li>It operates using primitives like <strong>state stores, watchers, reconcilers, and leader election</strong>.</li>
+<li>Patterns like <strong>declarative configuration</strong> and <strong>event-driven control</strong> make systems self-healing and predictable.</li>
+<li>Designing a good control plane involves balancing <strong>consistency, availability, and scalability</strong>.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_05_consistency_models.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_07_comparative_survey.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_05_consistency_models.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_07_comparative_survey.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

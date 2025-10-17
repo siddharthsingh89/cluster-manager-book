@@ -1,0 +1,841 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 13 - Placement &amp; Replica Assignment</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="chapter-13---placement--replica-assignment"><a class="header" href="#chapter-13---placement--replica-assignment"><strong>Chapter 13 - Placement &amp; Replica Assignment</strong></a></h2>
+<h3 id="131-overview"><a class="header" href="#131-overview"><strong>13.1 Overview</strong></a></h3>
+<p>In a distributed system, <strong>placement</strong> determines <em>where</em> data or computation lives. Whether you’re placing containers across nodes, shards across databases, or replicas across availability zones, placement decisions impact <strong>latency, availability, cost, and fault tolerance</strong>.</p>
+<p>At its core, placement and replica assignment form the backbone of <strong>resource distribution and resilience</strong> in large-scale systems. A cluster manager must ensure that workloads are spread intelligently while respecting constraints such as hardware capacity, failure domains, affinity rules, and performance metrics.</p>
+<hr />
+<h3 id="132-the-placement-problem"><a class="header" href="#132-the-placement-problem"><strong>13.2 The Placement Problem</strong></a></h3>
+<p>Placement is a <strong>multi-dimensional optimization problem</strong>:</p>
+<ul>
+<li><strong>Resources:</strong> CPU, memory, disk, network bandwidth</li>
+<li><strong>Topology:</strong> rack, node, region, zone</li>
+<li><strong>Constraints:</strong> affinity, anti-affinity, co-location</li>
+<li><strong>Policies:</strong> cost, priority, balance, energy efficiency</li>
+</ul>
+<p>For example:</p>
+<ul>
+<li>A Kubernetes scheduler must assign Pods to Nodes ensuring CPU/memory limits are respected.</li>
+<li>A Cassandra cluster must place replicas across racks to ensure quorum availability.</li>
+<li>A distributed file system like HDFS places blocks to balance reliability and access speed.</li>
+</ul>
+<p>The goal is to <strong>maximize cluster utilization</strong> while <strong>minimizing risk and contention</strong>.</p>
+<hr />
+<h3 id="133-replica-assignment-basics"><a class="header" href="#133-replica-assignment-basics"><strong>13.3 Replica Assignment Basics</strong></a></h3>
+<p>Most distributed systems use <strong>replication</strong> to achieve durability and fault tolerance.
+Replica assignment determines <strong>where each copy of the data is placed</strong>.</p>
+<p>Common strategies:</p>
+<div class="table-wrapper"><table><thead><tr><th>Strategy</th><th>Description</th><th>Example System</th></tr></thead><tbody>
+<tr><td><strong>Uniform replication</strong></td><td>Each partition is replicated <em>N</em> times across nodes</td><td>HDFS</td></tr>
+<tr><td><strong>Zone-aware replication</strong></td><td>Replicas placed across racks/zones</td><td>Cassandra, Kafka</td></tr>
+<tr><td><strong>Load-aware replication</strong></td><td>Balances data size and read/write load</td><td>CockroachDB</td></tr>
+<tr><td><strong>Topology-aware replication</strong></td><td>Takes network hierarchy into account</td><td>Ceph, Swift</td></tr>
+</tbody></table>
+</div>
+<p>Replica assignment is tightly coupled with placement - often the same module performs both, balancing <strong>data locality</strong> with <strong>failure independence</strong>.</p>
+<hr />
+<h3 id="134-consistent-hashing-and-data-distribution"><a class="header" href="#134-consistent-hashing-and-data-distribution"><strong>13.4 Consistent Hashing and Data Distribution</strong></a></h3>
+<p>A key primitive for placement is <strong>consistent hashing</strong>, used widely in:</p>
+<ul>
+<li>DynamoDB</li>
+<li>Cassandra</li>
+<li>Kafka partitions</li>
+<li>TiDB and CockroachDB</li>
+</ul>
+<h4 id="mechanism"><a class="header" href="#mechanism"><strong>Mechanism</strong></a></h4>
+<p>Nodes (or storage servers) are assigned to positions on a <strong>hash ring</strong>. Each data item (e.g., key, partition) is hashed and assigned to the next node clockwise on the ring.</p>
+<p>Advantages:</p>
+<ul>
+<li>Minimal data movement when nodes join/leave.</li>
+<li>Load balancing through virtual nodes (vnodes).</li>
+</ul>
+<h4 id="example"><a class="header" href="#example"><strong>Example</strong></a></h4>
+<pre><code>HashRing: [N1, N2, N3]
+Data(keyA) -&gt; hash(keyA) -&gt; N2
+Data(keyB) -&gt; hash(keyB) -&gt; N3
+</code></pre>
+<p>When N2 fails, N3 temporarily serves its partitions, minimizing rebalancing.</p>
+<hr />
+<h3 id="135-placement-constraints"><a class="header" href="#135-placement-constraints"><strong>13.5 Placement Constraints</strong></a></h3>
+<p>Placement systems often support rich constraints to capture business or infrastructure rules.</p>
+<div class="table-wrapper"><table><thead><tr><th>Constraint Type</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>Affinity</strong></td><td>“Run service A and B on the same node for low latency.”</td></tr>
+<tr><td><strong>Anti-Affinity</strong></td><td>“Avoid placing two replicas on the same rack.”</td></tr>
+<tr><td><strong>Capacity</strong></td><td>“Only place workloads on nodes with &gt;4GB RAM free.”</td></tr>
+<tr><td><strong>Topology Spread</strong></td><td>“Ensure replicas are evenly distributed across zones.”</td></tr>
+<tr><td><strong>Custom Policy</strong></td><td>“Prefer renewable-energy-powered datacenters.”</td></tr>
+</tbody></table>
+</div>
+<p>Schedulers model this as a <strong>Constraint Satisfaction Problem (CSP)</strong> or <strong>Integer Linear Program (ILP)</strong>, optimizing for both hard and soft constraints.</p>
+<hr />
+<h3 id="136-algorithms--techniques"><a class="header" href="#136-algorithms--techniques"><strong>13.6 Algorithms &amp; Techniques</strong></a></h3>
+<p>Placement algorithms range from greedy heuristics to machine learning–based optimizers.</p>
+<h4 id="greedy--rule-based"><a class="header" href="#greedy--rule-based"><strong>Greedy / Rule-Based</strong></a></h4>
+<ul>
+<li>Simple, fast.</li>
+<li>Used in early Mesos and Kubernetes schedulers.</li>
+<li>Example: “Pick first node that fits the request.”</li>
+</ul>
+<h4 id="scoring--weighted-ranking"><a class="header" href="#scoring--weighted-ranking"><strong>Scoring / Weighted Ranking</strong></a></h4>
+<ul>
+<li>Nodes get a score based on resource fit and policy match.</li>
+<li>Example: Kubernetes’ <em>ScorePlugins</em>.</li>
+<li>Compute: <code>score = w1*resource_fit + w2*topology_score + w3*latency</code></li>
+</ul>
+<h4 id="constraint-optimization"><a class="header" href="#constraint-optimization"><strong>Constraint Optimization</strong></a></h4>
+<ul>
+<li>Solved using ILP, SAT solvers, or simulated annealing.</li>
+<li>Used in Borg (Google’s internal scheduler).</li>
+<li>Expensive but produces globally optimal placements.</li>
+</ul>
+<h4 id="feedback-based-placement"><a class="header" href="#feedback-based-placement"><strong>Feedback-Based Placement</strong></a></h4>
+<ul>
+<li>Uses cluster telemetry (CPU, IO, latency) to continuously rebalance.</li>
+<li>Example: <em>Autopilot</em> in Google Cloud or <em>Rebalancer</em> in Kafka.</li>
+</ul>
+<hr />
+<h3 id="137-dynamic-rebalancing"><a class="header" href="#137-dynamic-rebalancing"><strong>13.7 Dynamic Rebalancing</strong></a></h3>
+<p>Placement is not a one-time operation. Systems must <strong>rebalance dynamically</strong> due to:</p>
+<ul>
+<li>Node failures or scaling events</li>
+<li>Hotspots in data access</li>
+<li>Resource contention</li>
+</ul>
+<p>A good rebalancer:</p>
+<ul>
+<li>Minimizes <strong>data movement</strong></li>
+<li>Respects <strong>network cost</strong></li>
+<li>Preserves <strong>availability</strong></li>
+</ul>
+<p><strong>Example – Kafka Rebalance:</strong>
+Kafka’s partition reassignor redistributes partitions when brokers join/leave, while maintaining replica spread across racks.</p>
+<hr />
+<h3 id="138-practical-design-example-kafka-partition-placement"><a class="header" href="#138-practical-design-example-kafka-partition-placement"><strong>13.8 Practical Design Example: Kafka Partition Placement</strong></a></h3>
+<p>Let’s analyze Kafka’s partition placement logic:</p>
+<ol>
+<li>
+<p><strong>Each topic</strong> has multiple partitions.</p>
+</li>
+<li>
+<p><strong>Each partition</strong> has <code>replication.factor</code> replicas.</p>
+</li>
+<li>
+<p><strong>Replica placement policy:</strong></p>
+<ul>
+<li>Spread replicas across racks.</li>
+<li>Assign leader partitions evenly across brokers.</li>
+<li>On broker failure, reassign partitions using a rebalance plan.</li>
+</ul>
+</li>
+</ol>
+<p>This simple yet effective placement ensures <strong>data durability, rack-level fault tolerance, and balanced broker load.</strong></p>
+<hr />
+<h3 id="139-challenges"><a class="header" href="#139-challenges"><strong>13.9 Challenges</strong></a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Challenge</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Skewed load</strong></td><td>Some nodes get “hot” due to uneven access.</td></tr>
+<tr><td><strong>Constraint explosion</strong></td><td>Too many policies can make scheduling NP-hard.</td></tr>
+<tr><td><strong>Latency vs Cost</strong></td><td>Data locality vs cross-zone replication trade-offs.</td></tr>
+<tr><td><strong>Heterogeneous hardware</strong></td><td>Nodes with different performance profiles.</td></tr>
+<tr><td><strong>Dynamic cluster membership</strong></td><td>Nodes joining/leaving frequently.</td></tr>
+</tbody></table>
+</div>
+<p>Real-world systems often use <strong>heuristics and feedback loops</strong> to deal with these challenges incrementally rather than aiming for perfect optimality.</p>
+<hr />
+<h3 id="1310-future-directions"><a class="header" href="#1310-future-directions"><strong>13.10 Future Directions</strong></a></h3>
+<p>Emerging trends in placement and replica assignment include:</p>
+<ul>
+<li><strong>Reinforcement learning–based schedulers</strong> that adapt dynamically.</li>
+<li><strong>Energy-aware placement</strong> to reduce carbon footprint.</li>
+<li><strong>Predictive load balancing</strong> using historical telemetry.</li>
+<li><strong>Declarative scheduling languages</strong> like Kubernetes’ Scheduling Framework.</li>
+</ul>
+<hr />
+<h3 id="1311-exercises"><a class="header" href="#1311-exercises"><strong>13.11 Exercises</strong></a></h3>
+<ol>
+<li>
+<p><strong>Conceptual:</strong>
+Why does consistent hashing minimize data movement compared to modulo-based partitioning?</p>
+</li>
+<li>
+<p><strong>Applied:</strong>
+Given 3 racks and replication factor 3, propose an algorithm to ensure replicas are rack-aware.</p>
+</li>
+<li>
+<p><strong>Analytical:</strong>
+Describe the trade-off between data locality and fault tolerance in placement decisions.</p>
+</li>
+<li>
+<p><strong>Design:</strong>
+Build a simplified scoring function for a scheduler that considers both CPU usage and latency.</p>
+</li>
+<li>
+<p><strong>Case Study:</strong>
+Research how CockroachDB places replicas and compare it to Cassandra.</p>
+</li>
+<li>
+<p><strong>Challenge:</strong>
+Implement a simulation of consistent hashing with N nodes and visualize how keys reassign when one node is removed.</p>
+</li>
+<li>
+<p><strong>Exploratory:</strong>
+Suggest a way to integrate a learning-based placement feedback loop into an existing rule-based scheduler.</p>
+</li>
+</ol>
+<hr />
+<h3 id="1312-placement-strategy-for-our-distributed-database"><a class="header" href="#1312-placement-strategy-for-our-distributed-database"><strong>13.12 Placement Strategy for Our Distributed Database</strong></a></h3>
+<p>Designing a placement and replica assignment strategy for a distributed database requires balancing <strong>durability</strong>, <strong>consistency</strong>, <strong>performance</strong>, and <strong>resource utilization</strong>. Unlike generic workload schedulers, databases operate under strong data locality, replication, and quorum semantics — making placement a <em>foundational layer</em> for both correctness and efficiency.</p>
+<p>Our strategy builds upon several principles used in production-grade databases like <strong>Cassandra</strong>, <strong>CockroachDB</strong>, and <strong>TiDB</strong>, but tailored for <strong>control-plane-driven coordination</strong>.</p>
+<hr />
+<h4 id="13121-core-principles"><a class="header" href="#13121-core-principles"><strong>13.12.1 Core Principles</strong></a></h4>
+<ol>
+<li>
+<p><strong>Data-local placement</strong></p>
+<ul>
+<li>Primary replicas are placed close to where data is most frequently read or written (client proximity or partition ownership).</li>
+<li>Minimizes latency for read-heavy workloads.</li>
+</ul>
+</li>
+<li>
+<p><strong>Failure-domain isolation</strong></p>
+<ul>
+<li>Replicas are distributed across <em>zones</em>, <em>racks</em>, and <em>nodes</em> to prevent correlated failures.</li>
+<li>Each replica of a partition must lie in a distinct fault domain.</li>
+</ul>
+</li>
+<li>
+<p><strong>Consistent hashing with topology awareness</strong></p>
+<ul>
+<li>Base placement uses a consistent hash ring.</li>
+<li>The ring is segmented into <strong>zones</strong>; each partition is placed in N zones (where N = replication factor).</li>
+</ul>
+</li>
+<li>
+<p><strong>Quorum alignment</strong></p>
+<ul>
+<li>Replica placement ensures that quorum (majority) replicas span independent zones to maximize availability even under partial failures.</li>
+<li>Example: RF=3 across 3 zones ensures quorum survival after any single zone outage.</li>
+</ul>
+</li>
+<li>
+<p><strong>Load-aware assignment</strong></p>
+<ul>
+<li>Monitor per-node CPU, memory, and IO utilization.</li>
+<li>Avoid placing new replicas on “hot” or overloaded nodes.</li>
+<li>Integrate with telemetry feedback from the storage layer.</li>
+</ul>
+</li>
+<li>
+<p><strong>Stable membership under churn</strong></p>
+<ul>
+<li>Minimize rebalancing when nodes join or leave.</li>
+<li>Maintain replica stability to reduce data movement overhead.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h4 id="13122-placement-workflow"><a class="header" href="#13122-placement-workflow"><strong>13.12.2 Placement Workflow</strong></a></h4>
+<p>The <strong>placement controller</strong> inside the cluster manager operates as a modular pipeline:</p>
+<div class="table-wrapper"><table><thead><tr><th>Stage</th><th>Description</th><th>Example Component</th></tr></thead><tbody>
+<tr><td><strong>1. Partition Hashing</strong></td><td>Each table is partitioned using consistent hashing.</td><td>HashRing module</td></tr>
+<tr><td><strong>2. Replica Selection</strong></td><td>Choose N nodes from distinct racks/zones for each partition.</td><td>ReplicaPlanner</td></tr>
+<tr><td><strong>3. Constraint Validation</strong></td><td>Ensure rack/zone affinity, resource limits, and anti-colocation.</td><td>PolicyEngine</td></tr>
+<tr><td><strong>4. Scoring &amp; Balancing</strong></td><td>Score candidates based on current utilization.</td><td>LoadScorer</td></tr>
+<tr><td><strong>5. Commit Placement</strong></td><td>Persist decisions in the cluster metadata store.</td><td>PlacementRegistry</td></tr>
+<tr><td><strong>6. Rebalance Loop</strong></td><td>Periodically or reactively adjust to failures or load shifts.</td><td>Rebalancer</td></tr>
+</tbody></table>
+</div>
+<p>The entire process is deterministic and auditable — ensuring reproducibility across control-plane replicas.</p>
+<hr />
+<h4 id="13123-example-policy-zone-aware-consistent-hashing"><a class="header" href="#13123-example-policy-zone-aware-consistent-hashing"><strong>13.12.3 Example Policy: Zone-Aware Consistent Hashing</strong></a></h4>
+<p>We extend standard consistent hashing to include <em>zone weights</em>:</p>
+<pre><code class="language-text">ZoneA (weight 2)
+ZoneB (weight 1)
+ZoneC (weight 1)
+</code></pre>
+<p>Replicas are assigned proportionally to zone weights while maintaining distinct fault domains per partition.
+For RF=3:</p>
+<ul>
+<li>Replica1 → ZoneA (Primary)</li>
+<li>Replica2 → ZoneB</li>
+<li>Replica3 → ZoneC</li>
+</ul>
+<p>When a new node joins ZoneC, only keys mapping to ZoneC’s hash range are rebalanced — minimizing cross-zone data movement.</p>
+<hr />
+<h4 id="13124-rebalancing-and-healing"><a class="header" href="#13124-rebalancing-and-healing"><strong>13.12.4 Rebalancing and Healing</strong></a></h4>
+<p>Our rebalancer operates in <strong>two modes</strong>:</p>
+<ul>
+<li><strong>Reactive mode:</strong> Triggered on node/rack failure. Moves replicas from unavailable domains.</li>
+<li><strong>Proactive mode:</strong> Periodic balancing based on node load and replication lag metrics.</li>
+</ul>
+<p>Rules:</p>
+<ul>
+<li>Never move more than <em>K%</em> of partitions per cycle.</li>
+<li>Prefer local-zone replacements first.</li>
+<li>Rebalance one replica per partition at a time to preserve quorum.</li>
+</ul>
+<hr />
+<h4 id="13125-integration-with-the-control-plane"><a class="header" href="#13125-integration-with-the-control-plane"><strong>13.12.5 Integration with the Control Plane</strong></a></h4>
+<p>The placement service exposes a well-defined API:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait PlacementAPI {
+    fn assign_replicas(&amp;self, partition_id: &amp;str, replication_factor: usize) -&gt; PlacementPlan;
+    fn rebalance(&amp;self, cluster_state: &amp;ClusterState) -&gt; Vec&lt;PlacementPlan&gt;;
+    fn validate_plan(&amp;self, plan: &amp;PlacementPlan) -&gt; Result&lt;(), PlacementError&gt;;
+}
+<span class="boring">}</span></code></pre></pre>
+<p>This API is consumed by higher-level modules:</p>
+<ul>
+<li><strong>Metadata Service</strong> → persists placement metadata.</li>
+<li><strong>Replication Manager</strong> → uses placement for replica streaming.</li>
+<li><strong>Rebalancer Agent</strong> → monitors drift and triggers placement updates.</li>
+</ul>
+<hr />
+<h4 id="13126-benefits-of-the-chosen-strategy"><a class="header" href="#13126-benefits-of-the-chosen-strategy"><strong>13.12.6 Benefits of the Chosen Strategy</strong></a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Goal</th><th>How it’s achieved</th></tr></thead><tbody>
+<tr><td><strong>High Availability</strong></td><td>Zone- and rack-aware replica assignment</td></tr>
+<tr><td><strong>Low Latency</strong></td><td>Data-local primary selection</td></tr>
+<tr><td><strong>Scalability</strong></td><td>Consistent hashing for O(1) lookup and O(log N) rebalancing</td></tr>
+<tr><td><strong>Operational Stability</strong></td><td>Minimal movement under churn</td></tr>
+<tr><td><strong>Policy Control</strong></td><td>Explicit placement and validation hooks in control plane</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h4 id="13127-looking-ahead"><a class="header" href="#13127-looking-ahead"><strong>13.12.7 Looking Ahead</strong></a></h4>
+<p>Future enhancements may include:</p>
+<ul>
+<li><strong>Machine learning–based placement scoring</strong> using predictive workload heatmaps.</li>
+<li><strong>Historical telemetry analysis</strong> to predict and preempt hotspots.</li>
+<li><strong>Adaptive replication factor</strong> per partition, based on access frequency.</li>
+<li><strong>Declarative placement rules</strong> in configuration DSLs (e.g., YAML or Rego policies).</li>
+</ul>
+<hr />
+<h2 id="mini-replica-placement-simulator-rust"><a class="header" href="#mini-replica-placement-simulator-rust">Mini Replica Placement Simulator (Rust)</a></h2>
+<ul>
+<li>This is a standalone command-line simulator that demonstrates:</li>
+<li>a consistent-hash ring with virtual nodes (vnodes)</li>
+<li>assigning keys to nodes and reporting distribution</li>
+<li>simulating node removal/addition and reporting how many keys moved</li>
+<li>a simple rack-aware replica placement heuristic</li>
+<li>Build with: <code>cargo new placement_sim --bin</code> and replace src/main.rs with this file, or save as main.rs inside a cargo project.</li>
+</ul>
+<pre><code class="language-Rust">use std::collections::hash_map::DefaultHasher;
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::fmt::Write as FmtWrite;
+use std::hash::{Hash, Hasher};
+
+fn hash_u64&lt;T: Hash&gt;(t: &amp;T) -&gt; u64 {
+    let mut s = DefaultHasher::new();
+    t.hash(&amp;mut s);
+    s.finish()
+}
+
+#[derive(Debug, Clone)]
+struct Node {
+    id: String,     // unique node id, e.g. "node-1"
+    rack: String,   // rack id, e.g. "rack-a"
+}
+
+#[derive(Debug)]
+struct ConsistentHashRing {
+    replicas: usize, // virtual nodes per physical node
+    // We use a BTreeMap for ordered ring mapping from hash-&gt;node_id
+    ring: BTreeMap&lt;u64, String&gt;,
+}
+
+impl ConsistentHashRing {
+    fn new(replicas: usize) -&gt; Self {
+        Self { replicas, ring: BTreeMap::new() }
+    }
+
+    fn vnode_key(node_id: &amp;str, i: usize) -&gt; String {
+        format!("{}#vn{}", node_id, i)
+    }
+
+    fn add_node(&amp;mut self, node_id: &amp;str) {
+        for i in 0..self.replicas {
+            let key = Self::vnode_key(node_id, i);
+            let h = hash_u64(&amp;key);
+            // collisions extremely unlikely; we simply overwrite if present
+            self.ring.insert(h, node_id.to_string());
+        }
+    }
+
+    fn remove_node(&amp;mut self, node_id: &amp;str) {
+        let mut to_remove = Vec::new();
+        for (h, nid) in self.ring.iter() {
+            if nid == node_id {
+                to_remove.push(*h);
+            }
+        }
+        for h in to_remove {
+            self.ring.remove(&amp;h);
+        }
+    }
+
+    // find the node responsible for the given key hash
+    fn get_node_for_hash(&amp;self, h: u64) -&gt; Option&lt;String&gt; {
+        // BTreeMap::range can find first key &gt;= h; otherwise wrap to first
+        if let Some((_, node)) = self.ring.range(h..).next() {
+            return Some(node.clone());
+        }
+        // wrap-around
+        self.ring.iter().next().map(|(_, node)| node.clone())
+    }
+
+    fn get_node_for_key&lt;T: Hash&gt;(&amp;self, key: &amp;T) -&gt; Option&lt;String&gt; {
+        let h = hash_u64(key);
+        self.get_node_for_hash(h)
+    }
+
+    // For debugging / distribution metrics
+    fn ring_size(&amp;self) -&gt; usize {
+        self.ring.len()
+    }
+}
+
+// Simple placement simulator harness
+struct PlacementSimulator {
+    ring: ConsistentHashRing,
+    nodes: HashMap&lt;String, Node&gt;, // node_id -&gt; Node
+}
+
+impl PlacementSimulator {
+    fn new(replicas: usize) -&gt; Self {
+        Self { ring: ConsistentHashRing::new(replicas), nodes: HashMap::new() }
+    }
+
+    fn add_node(&amp;mut self, node: Node) {
+        let id = node.id.clone();
+        self.ring.add_node(&amp;id);
+        self.nodes.insert(id.clone(), node);
+    }
+
+    fn remove_node(&amp;mut self, node_id: &amp;str) {
+        self.ring.remove_node(node_id);
+        self.nodes.remove(node_id);
+    }
+
+    // assign each key to a primary node (consistent hash)
+    fn assign_primaries(&amp;self, keys: &amp;[String]) -&gt; HashMap&lt;String, Vec&lt;String&gt;&gt; {
+        let mut mapping: HashMap&lt;String, Vec&lt;String&gt;&gt; = HashMap::new();
+        for k in keys {
+            if let Some(node) = self.ring.get_node_for_key(k) {
+                mapping.entry(node).or_default().push(k.clone());
+            } else {
+                // no nodes in ring
+            }
+        }
+        mapping
+    }
+
+    // Rack-aware replica assignment: for each key, pick primary via ring,
+    // then walk ring clockwise picking replicas from distinct racks until
+    // we have `replication_factor` replicas or exhaust nodes.
+    fn assign_replicas_rack_aware(&amp;self, keys: &amp;[String], replication_factor: usize) -&gt; HashMap&lt;String, Vec&lt;Vec&lt;String&gt;&gt;&gt; {
+        // return map: key -&gt; list of replica node ids (ordered: primary first)
+        let mut out: HashMap&lt;String, Vec&lt;Vec&lt;String&gt;&gt;&gt; = HashMap::new();
+        if self.nodes.is_empty() {
+            return out;
+        }
+
+        // build an ordered list of (hash, node_id) for walking
+        let mut sorted_ring: Vec&lt;(u64, String)&gt; = self.ring.ring.iter().map(|(h, nid)| (*h, nid.clone())).collect();
+        sorted_ring.sort_by_key(|(h, _)| *h);
+
+        let unique_nodes: Vec&lt;String&gt; = {
+            let mut set = Vec::new();
+            let mut seen = HashSet::new();
+            for (_, nid) in &amp;sorted_ring {
+                if !seen.contains(nid) {
+                    seen.insert(nid.clone());
+                    set.push(nid.clone());
+                }
+            }
+            set
+        };
+
+        for key in keys {
+            let primary = match self.ring.get_node_for_key(key) {
+                Some(n) =&gt; n,
+                None =&gt; continue,
+            };
+
+            let mut replicas: Vec&lt;String&gt; = Vec::new();
+            let mut used_racks: HashSet&lt;String&gt; = HashSet::new();
+
+            // add primary
+            if let Some(node) = self.nodes.get(&amp;primary) {
+                used_racks.insert(node.rack.clone());
+                replicas.push(primary.clone());
+            } else {
+                // node not present
+            }
+
+            // iterate through unique_nodes in ring order starting after primary
+            if unique_nodes.len() &gt; 1 {
+                // find index of primary
+                let mut idx = unique_nodes.iter().position(|n| n == &amp;primary).unwrap_or(0);
+                let mut steps = 0;
+                while replicas.len() &lt; replication_factor &amp;&amp; steps &lt; unique_nodes.len() * 2 {
+                    idx = (idx + 1) % unique_nodes.len();
+                    let candidate = &amp;unique_nodes[idx];
+                    if replicas.contains(candidate) { steps += 1; continue; }
+                    let candidate_rack = &amp;self.nodes.get(candidate).unwrap().rack;
+                    if !used_racks.contains(candidate_rack) {
+                        used_racks.insert(candidate_rack.clone());
+                        replicas.push(candidate.clone());
+                    }
+                    steps += 1;
+                }
+            }
+
+            // if we still don't have enough replicas (not enough racks), allow same-rack nodes
+            if replicas.len() &lt; replication_factor {
+                for n in &amp;unique_nodes {
+                    if replicas.len() &gt;= replication_factor { break; }
+                    if replicas.contains(n) { continue; }
+                    replicas.push(n.clone());
+                }
+            }
+
+            out.insert(key.clone(), vec![replicas]);
+        }
+
+        // Note: returned structure is key -&gt; Vec&lt;Vec&lt;String&gt;&gt; to match possible future extension (per-replica metadata)
+        out
+    }
+
+    // Utility: count how many keys changed primary owner between two mappings
+    fn count_moved_keys(old_map: &amp;HashMap&lt;String, Vec&lt;String&gt;&gt;, new_map: &amp;HashMap&lt;String, Vec&lt;String&gt;&gt;) -&gt; usize {
+        // Build key-&gt;owner for both
+        let mut old_owner: HashMap&lt;&amp;String, &amp;String&gt; = HashMap::new();
+        for (node, keys) in old_map {
+            for k in keys { old_owner.insert(k, node); }
+        }
+        let mut new_owner: HashMap&lt;&amp;String, &amp;String&gt; = HashMap::new();
+        for (node, keys) in new_map {
+            for k in keys { new_owner.insert(k, node); }
+        }
+        let mut moved = 0usize;
+        for (k, old) in old_owner.iter() {
+            if let Some(new) = new_owner.get(k) {
+                if *old != *new { moved += 1; }
+            } else {
+                moved += 1; // lost key
+            }
+        }
+        moved
+    }
+
+    // Distribution metrics: return node -&gt; count
+    fn distribution_counts(mapping: &amp;HashMap&lt;String, Vec&lt;String&gt;&gt;) -&gt; HashMap&lt;String, usize&gt; {
+        let mut out: HashMap&lt;String, usize&gt; = HashMap::new();
+        for (node, keys) in mapping {
+            out.insert(node.clone(), keys.len());
+        }
+        out
+    }
+}
+
+fn make_sample_keys(n: usize) -&gt; Vec&lt;String&gt; {
+    (0..n).map(|i| format!("key-{:06}", i)).collect()
+}
+
+fn print_dist_stats(dist: &amp;HashMap&lt;String, usize&gt;) {
+    let mut keys: Vec&lt;_&gt; = dist.iter().collect();
+    keys.sort_by_key(|(k, _)| *k);
+    let mut total = 0usize;
+    for (_, v) in &amp;keys { total += *v; }
+    let mean = (total as f64) / (keys.len() as f64);
+    let mut s = String::new();
+    writeln!(&amp;mut s, "Distribution across {} nodes (total keys = {}):", keys.len(), total).ok();
+    for (k, v) in keys {
+        writeln!(&amp;mut s, "  {:15} -&gt; {:6} keys", k, v).ok();
+    }
+    writeln!(&amp;mut s, "  mean = {:.2}", mean).ok();
+    println!("{}", s);
+}
+
+fn main() {
+    // Simple demo run
+    let replicas = 100; // vnodes per node
+    let mut sim = PlacementSimulator::new(replicas);
+
+    // Add 6 nodes across 3 racks
+    sim.add_node(Node { id: "node-1".into(), rack: "rack-a".into() });
+    sim.add_node(Node { id: "node-2".into(), rack: "rack-a".into() });
+    sim.add_node(Node { id: "node-3".into(), rack: "rack-b".into() });
+    sim.add_node(Node { id: "node-4".into(), rack: "rack-b".into() });
+    sim.add_node(Node { id: "node-5".into(), rack: "rack-c".into() });
+    sim.add_node(Node { id: "node-6".into(), rack: "rack-c".into() });
+
+    println!("Ring virtual nodes total = {}", sim.ring.ring_size());
+
+    let keys = make_sample_keys(10_000);
+    let primaries_before = sim.assign_primaries(&amp;keys);
+    let dist_before = PlacementSimulator::distribution_counts(&amp;primaries_before);
+    print_dist_stats(&amp;dist_before);
+
+    // Simulate node failure: remove node-3
+    println!("\nSimulating removal of node-3 (rack-b) ...\n");
+    sim.remove_node("node-3");
+    let primaries_after = sim.assign_primaries(&amp;keys);
+    let dist_after = PlacementSimulator::distribution_counts(&amp;primaries_after);
+    print_dist_stats(&amp;dist_after);
+
+    let moved = PlacementSimulator::count_moved_keys(&amp;primaries_before, &amp;primaries_after);
+    println!("Keys moved due to removal: {} ({}% of {})", moved, (moved as f64) * 100.0 / (keys.len() as f64), keys.len());
+
+    // Rack-aware replicas (replication factor 3)
+    println!("\nComputing rack-aware replica assignments (replication_factor=3) for first 10 keys:\n");
+    let first_keys: Vec&lt;String&gt; = keys.iter().take(10).cloned().collect();
+    let replicas_map = sim.assign_replicas_rack_aware(&amp;first_keys, 3);
+    for k in &amp;first_keys {
+        if let Some(list) = replicas_map.get(k) {
+            // list is Vec&lt;Vec&lt;String&gt;&gt;; our implementation puts replicas vec as list[0]
+            if let Some(replica_vec) = list.get(0) {
+                println!("{} -&gt; replicas = {:?}", k, replica_vec);
+            }
+        }
+    }
+
+    println!("\nDone. You can modify the node set, keys, and parameters in main() for experimentation.");
+}
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_12_membership_discovery.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_14_rebalancing.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_12_membership_discovery.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_14_rebalancing.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

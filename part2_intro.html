@@ -1,0 +1,299 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Part II - Goals, API Contracts &amp; High-Level Architecture</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="part-ii--goals-api-contracts--high-level-architecture"><a class="header" href="#part-ii--goals-api-contracts--high-level-architecture"><strong>Part II – Goals, API Contracts &amp; High-Level Architecture</strong></a></h2>
+<p>If <strong>Part I</strong> laid the conceptual and historical groundwork for why cluster managers exist and how they evolved, <strong>Part II</strong> turns the focus toward <em>designing one</em>.
+Here, we begin the transition from <em>theory</em> to <em>architecture</em>-from understanding distributed systems to shaping their form and boundaries.</p>
+<p>A cluster manager, at its core, is a continuously running distributed control plane that must balance correctness, scalability, and operational simplicity. Designing one requires not just algorithms and data structures, but a clear articulation of goals, API boundaries, and the relationships among its major components.</p>
+<p>This part captures that transition. It outlines how the system’s intent (its <strong>product and operational goals</strong>) gets distilled into <strong>high-level architectural choices</strong>, <strong>APIs</strong>, and <strong>protocols</strong> that shape everything downstream-from placement and rebalancing to recovery and observability.</p>
+<hr />
+<h3 id="structure-of-this-part"><a class="header" href="#structure-of-this-part"><strong>Structure of This Part</strong></a></h3>
+<ul>
+<li>
+<p><strong>Chapter 9 – Product &amp; Operational Goals</strong>
+Establishes what the cluster manager must achieve: elasticity, reliability, availability, and developer experience. We translate business and product needs into measurable technical objectives.</p>
+</li>
+<li>
+<p><strong>Chapter 10 – High-Level Architecture Choices</strong>
+Explores possible architectural blueprints-centralized vs. decentralized control, monolithic vs. modular services-and how trade-offs shape scalability, resilience, and maintainability.</p>
+</li>
+<li>
+<p><strong>Chapter 11 – APIs &amp; Contracts</strong>
+Defines the external and internal boundaries of the cluster manager: how clients, nodes, and operators interact through explicit contracts that ensure safety and evolution.</p>
+</li>
+<li>
+<p><strong>Chapter 12 – Membership &amp; Discovery</strong>
+Discusses how nodes find each other, join or leave the cluster, and maintain consistent views of the system in the face of churn and failure.</p>
+</li>
+<li>
+<p><strong>Chapter 13 – Placement &amp; Replica Assignment</strong>
+Details the logic that decides <em>where</em> data and tasks should live, balancing capacity, performance, and fault domains.</p>
+</li>
+<li>
+<p><strong>Chapter 14 – Rebalancing &amp; Data Movement</strong>
+Describes how the cluster adapts to growth, shrinkage, and topology changes without sacrificing availability or violating invariants.</p>
+</li>
+<li>
+<p><strong>Chapter 15 – Replication Coordination</strong>
+Covers mechanisms that ensure replicas stay consistent, coordinated, and resilient-tying into the broader consistency and durability goals introduced earlier.</p>
+</li>
+<li>
+<p><strong>Chapter 16 – Recovery &amp; Repair</strong>
+Explains how the system restores health after node failures, data loss, or network partitions, emphasizing automation and minimal operator intervention.</p>
+</li>
+<li>
+<p><strong>Chapter 17 – Configuration Management</strong>
+Focuses on how runtime parameters, policies, and feature flags are stored, versioned, and safely rolled out across distributed components.</p>
+</li>
+<li>
+<p><strong>Chapter 18 – Security &amp; Multi-Tenant Isolation</strong>
+Examines how authentication, authorization, and isolation boundaries are enforced in shared environments, ensuring tenant safety and compliance.</p>
+</li>
+<li>
+<p><strong>Chapter 19 – Observability &amp; Tooling</strong>
+Introduces the observability stack-metrics, logs, traces, and dashboards-that enable visibility, debugging, and continuous improvement.</p>
+</li>
+<li>
+<p><strong>Chapter 20 – Testing Strategy &amp; Verification</strong>
+Concludes the part with techniques to validate cluster correctness: simulation, fault injection, chaos testing, and continuous verification in production.</p>
+</li>
+</ul>
+<hr />
+<p>By the end of this part, readers will have a holistic blueprint of <em>what the cluster manager must do</em> and <em>how its core components communicate and evolve safely</em>.
+It forms the conceptual bridge between <strong>Part I (Foundations &amp; Surveys)</strong> and <strong>Part III (Detailed Design &amp; Implementation Patterns)</strong>-moving from “<em>Why we need a cluster manager</em>” to “<em>How we begin to build one</em>.”</p>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_08_design_constraints.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_09_goals.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_08_design_constraints.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_09_goals.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

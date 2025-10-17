@@ -1,0 +1,462 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 19 - Observability &amp; Tooling</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-19---observability-diagnostics--tooling"><a class="header" href="#chapter-19---observability-diagnostics--tooling"><strong>Chapter 19 - Observability, Diagnostics &amp; Tooling</strong></a></h1>
+<p>As systems evolve into distributed, multi-tenant environments, <em>observability</em> becomes indispensable. It’s no longer enough to know that the system is running; operators must understand <em>why</em> it behaves a certain way. Observability unifies metrics, logs, and traces to answer questions about performance, reliability, and user experience - while diagnostics and tooling provide the mechanisms to act on that insight.</p>
+<hr />
+<h2 id="191-the-role-of-observability"><a class="header" href="#191-the-role-of-observability"><strong>19.1 The Role of Observability</strong></a></h2>
+<p>Observability is the degree to which the internal state of a system can be inferred from its external outputs.
+It helps teams:</p>
+<ol>
+<li>Detect failures early</li>
+<li>Localize faults rapidly</li>
+<li>Analyze performance regressions</li>
+<li>Validate configuration or deployment changes</li>
+<li>Improve system resilience through feedback loops</li>
+</ol>
+<p>In distributed databases, observability is particularly complex because data paths span multiple nodes, tenants, and replication layers.</p>
+<hr />
+<h2 id="192-core-pillars-of-observability"><a class="header" href="#192-core-pillars-of-observability"><strong>19.2 Core Pillars of Observability</strong></a></h2>
+<h3 id="1921-metrics"><a class="header" href="#1921-metrics"><strong>19.2.1 Metrics</strong></a></h3>
+<p>Metrics are numerical time-series data representing system health.</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>CPU usage, memory consumption</li>
+<li>Query latency (p50, p95, p99)</li>
+<li>Replica lag</li>
+<li>Disk I/O throughput</li>
+<li>Transaction retries or rollbacks</li>
+</ul>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>metrics::gauge("replica_lag_seconds", lag_value);
+metrics::counter!("txn_commits_total", 1);
+<span class="boring">}</span></code></pre></pre>
+<p>Metrics are the first indicators of degradation and can be scraped by systems like <strong>Prometheus</strong>, <strong>OpenTelemetry Collector</strong>, or <strong>Vector</strong>.</p>
+<hr />
+<h3 id="1922-logs"><a class="header" href="#1922-logs"><strong>19.2.2 Logs</strong></a></h3>
+<p>Logs provide human-readable events useful for reconstructing state transitions.</p>
+<p><strong>Types of logs:</strong></p>
+<ul>
+<li><strong>Access logs:</strong> Client requests and responses</li>
+<li><strong>System logs:</strong> Node startup, rebalancing, failure detection</li>
+<li><strong>Audit logs:</strong> Security-sensitive events (see Chapter 18)</li>
+</ul>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>log::info!(
+    "TxnCommit tenant={} txn_id={} duration_ms={}",
+    tenant_id,
+    txn_id,
+    elapsed_ms
+);
+<span class="boring">}</span></code></pre></pre>
+<p>Logs are most useful when <strong>structured</strong> (JSON or key-value). This enables downstream analysis and filtering.</p>
+<hr />
+<h3 id="1923-traces"><a class="header" href="#1923-traces"><strong>19.2.3 Traces</strong></a></h3>
+<p>Traces capture <em>causal relationships</em> between operations across components.
+A single query may span multiple services: query planner → coordinator → storage node → replica.</p>
+<p>Each span includes:</p>
+<ul>
+<li><strong>Trace ID:</strong> Unique across the entire transaction</li>
+<li><strong>Span ID:</strong> Unique per operation</li>
+<li><strong>Attributes:</strong> Context (tenant_id, node_id, request_type)</li>
+</ul>
+<p>Example (OpenTelemetry SDK):</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let tracer = opentelemetry::global::tracer("query_service");
+let span = tracer.start("PlanAndExecute");
+span.set_attribute(KeyValue::new("tenant_id", tenant_id));
+<span class="boring">}</span></code></pre></pre>
+<p>Visualization tools like <strong>Jaeger</strong> or <strong>Tempo</strong> can reconstruct distributed call graphs.</p>
+<hr />
+<h2 id="193-distributed-diagnostics"><a class="header" href="#193-distributed-diagnostics"><strong>19.3 Distributed Diagnostics</strong></a></h2>
+<p>Diagnostics complement observability by enabling <em>targeted investigation and control</em>.</p>
+<h3 id="1931-health-probes"><a class="header" href="#1931-health-probes"><strong>19.3.1 Health Probes</strong></a></h3>
+<p>Each node exposes health endpoints:</p>
+<ul>
+<li><code>/health/liveness</code> → Node process running</li>
+<li><code>/health/readiness</code> → Node ready for traffic</li>
+<li><code>/health/replica</code> → Local replica consistency check</li>
+</ul>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>async fn readiness_check() -&gt; bool {
+    storage::is_mount_ok() &amp;&amp; cluster::is_leaseholder_healthy()
+}
+<span class="boring">}</span></code></pre></pre>
+<p>These endpoints integrate with orchestrators (Kubernetes, Nomad, or internal cluster managers) to automate node recovery.</p>
+<hr />
+<h3 id="1932-debug-interfaces"><a class="header" href="#1932-debug-interfaces"><strong>19.3.2 Debug Interfaces</strong></a></h3>
+<p>Each subsystem may expose internal state for inspection.</p>
+<p>Example Debug API:</p>
+<pre><code>GET /debug/placement?tenant=1234
+GET /debug/txn?txn_id=abc123
+GET /debug/raft?group=42
+</code></pre>
+<p>Such APIs are read-only and should require elevated authentication to prevent misuse.</p>
+<hr />
+<h3 id="1933-on-demand-sampling"><a class="header" href="#1933-on-demand-sampling"><strong>19.3.3 On-Demand Sampling</strong></a></h3>
+<p>To avoid overwhelming telemetry systems, sampling strategies are applied:</p>
+<ul>
+<li><strong>Head-based:</strong> Randomly choose which requests to trace.</li>
+<li><strong>Tail-based:</strong> Retain only slow or error traces.</li>
+<li><strong>Adaptive:</strong> Increase trace rate during anomalies.</li>
+</ul>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>if latency_ms &gt; 200 || rng.gen_bool(0.01) {
+    trace_collector::record(span);
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="194-observability-architecture"><a class="header" href="#194-observability-architecture"><strong>19.4 Observability Architecture</strong></a></h2>
+<p>A distributed observability pipeline typically includes:</p>
+<pre><code>[Node Agent] → [Collector] → [Storage] → [Dashboard / Alerts]
+</code></pre>
+<h3 id="components"><a class="header" href="#components"><strong>Components</strong></a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Layer</th><th>Responsibility</th></tr></thead><tbody>
+<tr><td><strong>Agent</strong></td><td>Emits metrics/logs/traces from each node</td></tr>
+<tr><td><strong>Collector</strong></td><td>Aggregates and batches telemetry</td></tr>
+<tr><td><strong>Backend</strong></td><td>Stores time-series and trace data</td></tr>
+<tr><td><strong>Dashboard</strong></td><td>Visualizes KPIs and dependencies</td></tr>
+<tr><td><strong>Alert Engine</strong></td><td>Detects thresholds or anomalies</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h2 id="195-tooling-for-operators"><a class="header" href="#195-tooling-for-operators"><strong>19.5 Tooling for Operators</strong></a></h2>
+<p>Tooling transforms raw observability into actionable control.</p>
+<h3 id="1951-cli-tools"><a class="header" href="#1951-cli-tools"><strong>19.5.1 CLI Tools</strong></a></h3>
+<p>Operators use command-line tools to introspect or repair clusters.</p>
+<p>Example commands:</p>
+<pre><code>dbctl cluster status
+dbctl node drain --node=node-12
+dbctl tenant quota --set=cpu=2 --tenant=5678
+dbctl diag trace --txn=abc123
+</code></pre>
+<p>Each command wraps authenticated RPCs to the control plane, logging all invocations to the audit trail.</p>
+<hr />
+<h3 id="1952-admin-dashboard"><a class="header" href="#1952-admin-dashboard"><strong>19.5.2 Admin Dashboard</strong></a></h3>
+<p>A browser-based dashboard provides:</p>
+<ul>
+<li>Cluster map (nodes, tenants, replicas)</li>
+<li>Resource utilization heatmaps</li>
+<li>Top N slow queries</li>
+<li>Alert feed with drill-downs</li>
+</ul>
+<h3 id="1953-trace-explorer"><a class="header" href="#1953-trace-explorer"><strong>19.5.3 Trace Explorer</strong></a></h3>
+<p>Visualizes distributed query flow:</p>
+<pre><code>Client → Coordinator → Shard 3 → Replica 2 → Commit
+</code></pre>
+<p>Colored spans highlight latency bottlenecks.</p>
+<hr />
+<h2 id="196-automated-anomaly-detection"><a class="header" href="#196-automated-anomaly-detection"><strong>19.6 Automated Anomaly Detection</strong></a></h2>
+<p>Machine learning can enhance observability by learning baseline patterns.</p>
+<h3 id="approaches"><a class="header" href="#approaches"><strong>Approaches</strong></a></h3>
+<ul>
+<li><strong>Seasonal Forecasting:</strong> Detect deviation from normal daily usage.</li>
+<li><strong>Multivariate Analysis:</strong> Correlate metrics (e.g., replica lag + CPU spikes).</li>
+<li><strong>Anomaly Scores:</strong> Auto-generate alerts only when impact is significant.</li>
+</ul>
+<p>Example pseudocode:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>if anomaly_detector::score(metric_window) &gt; 0.9 {
+    alert::raise("Possible replication delay anomaly");
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="197-incident-response-and-root-cause-analysis"><a class="header" href="#197-incident-response-and-root-cause-analysis"><strong>19.7 Incident Response and Root Cause Analysis</strong></a></h2>
+<p>When an incident occurs, observability data drives RCA (Root Cause Analysis).</p>
+<h3 id="stages"><a class="header" href="#stages"><strong>Stages</strong></a></h3>
+<ol>
+<li><strong>Detection:</strong> Alert triggers from thresholds or anomalies.</li>
+<li><strong>Scoping:</strong> Identify affected tenants or nodes.</li>
+<li><strong>Traceback:</strong> Examine causal chains from request traces.</li>
+<li><strong>Verification:</strong> Validate recovery and regression tests.</li>
+<li><strong>Postmortem:</strong> Record incident learnings.</li>
+</ol>
+<p><strong>Tip:</strong> Tag all changes (deployments, config edits) in observability metadata - it makes RCA far faster.</p>
+<hr />
+<h2 id="198-observability-contracts"><a class="header" href="#198-observability-contracts"><strong>19.8 Observability Contracts</strong></a></h2>
+<h3 id="api-observabilitycontract"><a class="header" href="#api-observabilitycontract"><strong>API: ObservabilityContract</strong></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait ObservabilityContract {
+    fn record_metric(name: &amp;str, value: f64, labels: &amp;[(&amp;str, &amp;str)]);
+    fn emit_log(level: LogLevel, message: &amp;str, context: &amp;[(&amp;str, &amp;str)]);
+    fn start_trace(span_name: &amp;str) -&gt; TraceHandle;
+    fn push_trace(handle: TraceHandle);
+}
+<span class="boring">}</span></code></pre></pre>
+<p>This contract ensures uniform observability behavior across microservices.</p>
+<hr />
+<h2 id="199-diagnostics-tooling-contract"><a class="header" href="#199-diagnostics-tooling-contract"><strong>19.9 Diagnostics Tooling Contract</strong></a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait DiagnosticTooling {
+    fn dump_state(component: &amp;str) -&gt; String;
+    fn run_health_checks() -&gt; Vec&lt;HealthReport&gt;;
+    fn capture_trace(txn_id: &amp;str) -&gt; TraceReport;
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Such interfaces empower both automated controllers and human operators to debug distributed state safely.</p>
+<hr />
+<h2 id="1910-challenges--exercises"><a class="header" href="#1910-challenges--exercises"><strong>19.10 Challenges &amp; Exercises</strong></a></h2>
+<p><strong>Challenges</strong></p>
+<ol>
+<li>Design a unified telemetry schema that can represent metrics, logs, and traces consistently.</li>
+<li>Implement tail-based sampling to capture only anomalous transactions.</li>
+<li>Create a command-line diagnostic tool using gRPC to fetch live cluster state.</li>
+</ol>
+<p><strong>Exercises</strong></p>
+<ul>
+<li>Build a Jaeger trace viewer for your query execution path.</li>
+<li>Write a health probe that verifies replica quorum availability.</li>
+</ul>
+<hr />
+<h2 id="summary"><a class="header" href="#summary"><strong>Summary</strong></a></h2>
+<p>Observability converts raw system activity into insight. Diagnostics and tooling turn that insight into control. Together, they form the operational backbone of a reliable distributed database:</p>
+<ul>
+<li><strong>Metrics</strong> quantify system health.</li>
+<li><strong>Logs</strong> capture events and context.</li>
+<li><strong>Traces</strong> reveal causal structure.</li>
+<li><strong>Tooling</strong> closes the feedback loop with intelligent automation.</li>
+</ul>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_18_security.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_20_testing.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_18_security.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_20_testing.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

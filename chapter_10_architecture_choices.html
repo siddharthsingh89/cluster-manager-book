@@ -1,0 +1,495 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 10 - High-Level Architecture Choices</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-10--high-level-architecture-choices-in-the-context-of-a-distributed-database"><a class="header" href="#chapter-10--high-level-architecture-choices-in-the-context-of-a-distributed-database"><strong>Chapter 10 – High-Level Architecture Choices (in the Context of a Distributed Database)</strong></a></h1>
+<p>In the previous chapter, we identified <em>what</em> the cluster manager must achieve: reliability, scalability, and availability.
+Now we’ll explore <em>how to design it</em> - specifically, how a <strong>distributed database</strong> structures its architecture to achieve those goals.</p>
+<p>Unlike a generic scheduler (like Kubernetes), a <strong>distributed database</strong> cluster manager is responsible not just for resources, but for <strong>data correctness, consistency, and replication</strong>.
+This adds new dimensions to architecture:</p>
+<ul>
+<li>How metadata and data layers interact.</li>
+<li>How replicas are placed, balanced, and repaired.</li>
+<li>How control is coordinated across many nodes that each hold part of the data.</li>
+</ul>
+<hr />
+<h2 id="101-why-architecture-matters-for-distributed-databases"><a class="header" href="#101-why-architecture-matters-for-distributed-databases"><strong>10.1 Why Architecture Matters for Distributed Databases</strong></a></h2>
+<p>The architecture defines how the database behaves under load, failure, and scale.</p>
+<p>A good architecture should make it easy to:</p>
+<ul>
+<li>Add or remove nodes without downtime.</li>
+<li>Keep replicas consistent and available.</li>
+<li>Recover from crashes automatically.</li>
+<li>Support strong or eventual consistency as needed.</li>
+</ul>
+<p>It’s the invisible framework that turns a collection of machines into a single, logical database.</p>
+<hr />
+<h2 id="102-major-building-blocks"><a class="header" href="#102-major-building-blocks"><strong>10.2 Major Building Blocks</strong></a></h2>
+<p>A distributed database typically consists of the following layers:</p>
+<div class="table-wrapper"><table><thead><tr><th>Layer</th><th>Description</th><th>Example Components</th></tr></thead><tbody>
+<tr><td><strong>SQL / Query Layer</strong></td><td>Parses queries, plans execution, routes to correct data partitions.</td><td>SQL gateway, router, planner</td></tr>
+<tr><td><strong>Control Plane</strong></td><td>Manages cluster metadata, node membership, and coordination.</td><td>Placement service, Raft leader, meta service</td></tr>
+<tr><td><strong>Data Plane</strong></td><td>Stores and replicates data across nodes.</td><td>Storage engines, Raft followers</td></tr>
+<tr><td><strong>Metadata Store</strong></td><td>Strongly consistent source of truth for cluster configuration and tablet locations.</td><td>etcd, internal meta-table, Raft group 0</td></tr>
+<tr><td><strong>Management Plane</strong></td><td>Provides admin APIs, dashboards, and monitoring for operators.</td><td>Admin UI, CLI, Prometheus</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h2 id="103-centralized-vs-decentralized-control"><a class="header" href="#103-centralized-vs-decentralized-control"><strong>10.3 Centralized vs. Decentralized Control</strong></a></h2>
+<h3 id="centralized-control"><a class="header" href="#centralized-control"><strong>Centralized Control</strong></a></h3>
+<p>Some systems maintain a <em>single metadata master</em> or <em>coordinator</em> responsible for global decisions - like assigning shards or managing schema updates.</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Early versions of HDFS (NameNode)</li>
+<li>TiDB’s Placement Driver (PD)</li>
+<li>Spanner’s Master and directory hierarchies</li>
+</ul>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Simpler metadata management</li>
+<li>Global view of cluster topology</li>
+<li>Easier transaction coordination</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Scalability bottleneck if unsharded</li>
+<li>Requires robust failover and replication</li>
+</ul>
+<p><strong>Best for:</strong> Clusters with strong consistency and global schema coordination needs.</p>
+<hr />
+<h3 id="decentralized--consensus-based-control"><a class="header" href="#decentralized--consensus-based-control"><strong>Decentralized / Consensus-Based Control</strong></a></h3>
+<p>Here, metadata and decisions are replicated across multiple nodes using consensus protocols like <strong>Raft</strong> or <strong>Paxos</strong>.
+There’s no single permanent master - leadership is ephemeral and re-elected automatically.</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>CockroachDB (meta ranges + Raft consensus)</li>
+<li>YugabyteDB (per-tablet Raft groups)</li>
+</ul>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>No single point of failure</li>
+<li>Metadata and data evolve together</li>
+<li>Enables elastic scaling</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Complex coordination during rebalancing</li>
+<li>Metadata lookup overhead</li>
+</ul>
+<p><strong>Best for:</strong> Geo-distributed systems prioritizing availability and resilience.</p>
+<hr />
+<h2 id="104-monolithic-vs-modular-services"><a class="header" href="#104-monolithic-vs-modular-services"><strong>10.4 Monolithic vs. Modular Services</strong></a></h2>
+<h3 id="monolithic-architecture"><a class="header" href="#monolithic-architecture"><strong>Monolithic Architecture</strong></a></h3>
+<p>All database logic (SQL, metadata, replication, storage) runs in a single process per node.</p>
+<p><strong>Example:</strong>
+CockroachDB and YugabyteDB run as a single binary where each node participates in SQL, Raft consensus, and storage.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Simplified deployment</li>
+<li>Co-located execution improves performance</li>
+<li>Easier to maintain consistency between layers</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Harder to scale individual layers independently</li>
+<li>Larger codebase, more complex upgrades</li>
+</ul>
+<hr />
+<h3 id="modular--service-oriented-architecture"><a class="header" href="#modular--service-oriented-architecture"><strong>Modular / Service-Oriented Architecture</strong></a></h3>
+<p>Components like query processing, metadata management, and storage run as distinct services, often communicating over gRPC.</p>
+<p><strong>Examples:</strong>
+TiDB splits the architecture into:</p>
+<ul>
+<li>TiDB servers (SQL layer)</li>
+<li>TiKV servers (storage layer)</li>
+<li>PD servers (metadata and placement)</li>
+</ul>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Clear separation of responsibilities</li>
+<li>Independent scaling and upgrades</li>
+<li>Easier to reason about boundaries and APIs</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Higher inter-service latency</li>
+<li>More operational complexity</li>
+</ul>
+<hr />
+<h2 id="105-control-flow-in-distributed-databases"><a class="header" href="#105-control-flow-in-distributed-databases"><strong>10.5 Control Flow in Distributed Databases</strong></a></h2>
+<h3 id="1-query-flow-user-path"><a class="header" href="#1-query-flow-user-path"><strong>1. Query Flow (User Path)</strong></a></h3>
+<ol>
+<li>The client connects to any SQL node or proxy.</li>
+<li>The SQL layer parses and plans the query.</li>
+<li>It looks up the location of required data ranges in the metadata service.</li>
+<li>The query is executed by contacting relevant data replicas (via Raft or similar).</li>
+<li>Results are aggregated and returned to the client.</li>
+</ol>
+<p>This path emphasizes <strong>low latency</strong> and <strong>read/write coordination</strong>.</p>
+<hr />
+<h3 id="2-control-flow-cluster-path"><a class="header" href="#2-control-flow-cluster-path"><strong>2. Control Flow (Cluster Path)</strong></a></h3>
+<p>In parallel, the control plane performs:</p>
+<ul>
+<li>Node health checks.</li>
+<li>Replica placement and rebalancing.</li>
+<li>Configuration propagation.</li>
+<li>Failure detection and recovery.</li>
+<li>Leadership elections for Raft groups.</li>
+</ul>
+<p>This path emphasizes <strong>reliability and automation</strong>.</p>
+<hr />
+<h2 id="106-data--metadata-flow"><a class="header" href="#106-data--metadata-flow"><strong>10.6 Data &amp; Metadata Flow</strong></a></h2>
+<p>Distributed databases usually maintain <strong>two types of state</strong>:</p>
+<div class="table-wrapper"><table><thead><tr><th>Type</th><th>Characteristics</th><th>Example Storage</th></tr></thead><tbody>
+<tr><td><strong>Metadata State</strong></td><td>Cluster topology, shard locations, schema info</td><td>Stored in a small, highly consistent Raft group</td></tr>
+<tr><td><strong>User Data State</strong></td><td>Application tables and indexes</td><td>Partitioned into shards/tablets, replicated via Raft</td></tr>
+</tbody></table>
+</div>
+<p><strong>Design principle:</strong>
+Metadata moves less frequently than user data, so it’s safe to keep metadata strongly consistent while allowing more flexible policies for user data.</p>
+<hr />
+<p>Sure - here’s <strong>that section rewritten for a distributed database context</strong>, focusing on architecture diagram, our design choice, and exercises:</p>
+<hr />
+<h2 id="107-architecture-diagram"><a class="header" href="#107-architecture-diagram"><strong>10.7 Architecture Diagram</strong></a></h2>
+<p>Below is a conceptual architecture of a <strong>distributed database cluster</strong> with a <strong>centralized control plane</strong> coordinating decentralized data nodes.</p>
+<pre><code>                          ┌──────────────────────────────┐
+                          │     Management Plane          │
+                          │ ──────────────────────────── │
+                          │  • Admin Console / CLI        │
+                          │  • Monitoring &amp; Backup Tools  │
+                          │  • Policy &amp; Configuration UI  │
+                          └───────────────┬───────────────┘
+                                          │
+                                          ▼
+                          ┌──────────────────────────────┐
+                          │       Control Plane           │
+                          │ ──────────────────────────── │
+                          │  • Cluster Manager / Master   │
+                          │  • Metadata Catalog            │
+                          │  • Placement &amp; Balancer        │
+                          │  • Replication Controller      │
+                          │  • Coordination Store (Raft)   │
+                          └───────────────┬───────────────┘
+                                          │
+                   ┌──────────────────────┼──────────────────────┐
+                   ▼                      ▼                      ▼
+        ┌───────────────────┐   ┌───────────────────┐   ┌───────────────────┐
+        │   Data Node A      │   │   Data Node B      │   │   Data Node C      │
+        │ ───────────────── │   │ ───────────────── │   │ ───────────────── │
+        │  • Storage Engine  │   │  • Storage Engine  │   │  • Storage Engine  │
+        │  • Replication     │   │  • Replication     │   │  • Replication     │
+        │  • Query Executor  │   │  • Query Executor  │   │  • Query Executor  │
+        │  • Local WAL/Cache │   │  • Local WAL/Cache │   │  • Local WAL/Cache │
+        └───────────────────┘   └───────────────────┘   └───────────────────┘
+</code></pre>
+<h3 id="how-it-works"><a class="header" href="#how-it-works"><strong>How It Works</strong></a></h3>
+<ul>
+<li><strong>Management Plane</strong> - interfaces for operators and administrators: cluster setup, scaling, and monitoring.</li>
+<li><strong>Control Plane</strong> - the “brain” that tracks metadata (like tablet or shard locations), decides where replicas live, and orchestrates rebalancing.</li>
+<li><strong>Data Nodes</strong> - store and serve actual data, execute queries, and replicate logs.</li>
+<li><strong>Coordination Store (Raft/etcd/ZooKeeper)</strong> - ensures consistent metadata view across control plane replicas.</li>
+</ul>
+<p>This architecture separates <strong>control from data</strong> - allowing independent scaling, clearer fault domains, and simpler recovery logic.</p>
+<hr />
+<h2 id="108-our-architecture-choice"><a class="header" href="#108-our-architecture-choice"><strong>10.8 Our Architecture Choice</strong></a></h2>
+<p>For our distributed database, we’ll use a <strong>centralized control plane with decentralized data nodes</strong>.</p>
+<div class="table-wrapper"><table><thead><tr><th><strong>Aspect</strong></th><th><strong>Our Choice</strong></th><th><strong>Why It Matters</strong></th></tr></thead><tbody>
+<tr><td><strong>Control Plane</strong></td><td>Leader-based (Raft) control node(s)</td><td>Ensures strong consistency for metadata (shard maps, replica state)</td></tr>
+<tr><td><strong>Data Plane</strong></td><td>Autonomous storage nodes</td><td>Enables scalability and parallel query execution</td></tr>
+<tr><td><strong>Replication</strong></td><td>Quorum-based (Raft or Paxos) per shard</td><td>Fault-tolerant, consistent data replication</td></tr>
+<tr><td><strong>Placement</strong></td><td>Control plane decides primary &amp; replicas</td><td>Central coordination ensures balance and durability</td></tr>
+<tr><td><strong>Communication</strong></td><td>gRPC / RPC with heartbeats</td><td>Reliable, structured communication</td></tr>
+<tr><td><strong>Failover</strong></td><td>Leader election among control nodes</td><td>Automatic failover keeps metadata always available</td></tr>
+<tr><td><strong>Storage</strong></td><td>Local WAL + SSTables</td><td>Durable, append-optimized storage on each node</td></tr>
+<tr><td><strong>Discovery</strong></td><td>Control plane maintains cluster map</td><td>Simplifies node bootstrapping and rebalancing</td></tr>
+</tbody></table>
+</div>
+<h3 id="why-this-design-works"><a class="header" href="#why-this-design-works"><strong>Why This Design Works</strong></a></h3>
+<ul>
+<li><strong>Centralized metadata = simple correctness</strong></li>
+<li><strong>Decentralized data = scalable performance</strong></li>
+<li><strong>Asynchronous control = fault tolerance</strong></li>
+</ul>
+<p>It also aligns with systems like <strong>CockroachDB</strong>, <strong>YugabyteDB</strong>, and <strong>TiDB</strong>, each balancing <em>strong consistency</em> with <em>elastic scalability</em>.</p>
+<hr />
+<h2 id="109-exercises-and-thought-questions"><a class="header" href="#109-exercises-and-thought-questions"><strong>10.9 Exercises and Thought Questions</strong></a></h2>
+<ol>
+<li>
+<p><strong>Metadata Split</strong>
+Why is it risky to let every data node manage its own shard metadata?</p>
+<ul>
+<li>What problems arise during rebalancing or recovery?</li>
+</ul>
+</li>
+<li>
+<p><strong>Control Plane Failure</strong>
+If the control node (leader) fails mid-placement, how can we avoid data loss or inconsistent assignment?</p>
+</li>
+<li>
+<p><strong>Data Node Autonomy</strong>
+What operations should a data node perform even if disconnected from the control plane?
+(Hint: local query reads, WAL replay, compaction.)</p>
+</li>
+<li>
+<p><strong>Hybrid Design Exploration</strong>
+Could a distributed database ever work <em>without</em> a dedicated control plane?</p>
+<ul>
+<li>What trade-offs in consistency and convergence time would appear?</li>
+</ul>
+</li>
+<li>
+<p><strong>Latency Awareness</strong>
+Suppose your cluster spans multiple regions.</p>
+<ul>
+<li>Would you colocate control nodes with data? Why or why not?</li>
+</ul>
+</li>
+<li>
+<p><strong>Mini Project – Design a Mini-DB</strong>
+Draw your own 5-node database cluster:</p>
+<ul>
+<li>1 control node</li>
+<li>4 data nodes
+Describe how a write flows through control → data nodes → replication → acknowledgment.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<p><strong>Summary</strong>
+We’ve now grounded our architecture in a <strong>distributed database context</strong> - where a <strong>centralized metadata brain</strong> coordinates <strong>autonomous storage nodes</strong>.
+This design makes strong consistency achievable without giving up elasticity, forming the foundation for the next chapters on APIs, membership, placement, and replication.</p>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_09_goals.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_11_apis_contracts.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_09_goals.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_11_apis_contracts.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

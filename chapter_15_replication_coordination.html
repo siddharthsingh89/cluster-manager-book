@@ -1,0 +1,766 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 15 - Replication Coordination</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="chapter-15---replication-coordination"><a class="header" href="#chapter-15---replication-coordination"><strong>Chapter 15 - Replication Coordination</strong></a></h2>
+<h3 id="overview"><a class="header" href="#overview"><strong>Overview</strong></a></h3>
+<p>Replication is the foundation of reliability in distributed databases. It ensures that data remains <strong>durable</strong>, <strong>available</strong>, and <strong>consistent</strong> even when individual nodes fail.
+But replication is not just about keeping multiple copies of data - it’s about <strong>coordinating updates</strong> across those copies to maintain a coherent global state.</p>
+<p>Replication coordination refers to the mechanisms and protocols that manage:</p>
+<ul>
+<li>how replicas communicate,</li>
+<li>who decides the order of updates,</li>
+<li>how failures are detected and recovered, and</li>
+<li>how clients interact with the replicated system.</li>
+</ul>
+<p>This chapter explores replication coordination in depth - from leader-based and leaderless designs to commit protocols, failover handling, and real-world examples.</p>
+<hr />
+<h3 id="151-goals-of-replication"><a class="header" href="#151-goals-of-replication"><strong>15.1 Goals of Replication</strong></a></h3>
+<p>Replication coordination aims to achieve several core objectives:</p>
+<div class="table-wrapper"><table><thead><tr><th>Goal</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Durability</strong></td><td>Data persists even if nodes crash or disks fail.</td></tr>
+<tr><td><strong>Availability</strong></td><td>Read and write operations continue despite failures.</td></tr>
+<tr><td><strong>Consistency</strong></td><td>All replicas eventually agree on the same state.</td></tr>
+<tr><td><strong>Performance</strong></td><td>Writes commit efficiently without excessive coordination overhead.</td></tr>
+<tr><td><strong>Scalability</strong></td><td>Adding replicas should improve fault tolerance, not introduce contention.</td></tr>
+</tbody></table>
+</div>
+<p>Achieving all of these simultaneously is constrained by the <strong>CAP theorem</strong> - systems must trade between <em>consistency</em> and <em>availability</em> during partitions. Replication coordination determines where that trade-off is made.</p>
+<hr />
+<h3 id="152-replica-roles"><a class="header" href="#152-replica-roles"><strong>15.2 Replica Roles</strong></a></h3>
+<p>Each replica can play different roles in a replication group:</p>
+<ul>
+<li><strong>Leader (Primary):</strong>
+Coordinates writes, defines commit order, and propagates updates.</li>
+<li><strong>Follower (Secondary):</strong>
+Receives updates from the leader and applies them in the same order.</li>
+<li><strong>Learner / Observer:</strong>
+Non-voting replica used for replication to remote regions or read-only workloads.</li>
+<li><strong>Candidate:</strong>
+A node attempting to become leader during election.</li>
+</ul>
+<p>Role transitions occur dynamically - e.g., leader failure triggers a new election, or new replicas are promoted after catch-up.</p>
+<hr />
+<h3 id="153-replication-models"><a class="header" href="#153-replication-models"><strong>15.3 Replication Models</strong></a></h3>
+<p>Replication coordination depends on the system’s underlying model:</p>
+<h4 id="a-synchronous-replication"><a class="header" href="#a-synchronous-replication"><strong>(a) Synchronous Replication</strong></a></h4>
+<ul>
+<li>Write is acknowledged <strong>after all replicas</strong> confirm receipt.</li>
+<li>Guarantees strong consistency.</li>
+<li>High latency and risk of blocking if one replica is slow.</li>
+<li>Used in critical systems (e.g., Spanner, etcd).</li>
+</ul>
+<h4 id="b-asynchronous-replication"><a class="header" href="#b-asynchronous-replication"><strong>(b) Asynchronous Replication</strong></a></h4>
+<ul>
+<li>Leader commits locally, then propagates updates later.</li>
+<li>Improves latency but risks data loss during failure.</li>
+<li>Used for cross-region or DR (disaster recovery) replicas.</li>
+</ul>
+<h4 id="c-quorum-based-replication"><a class="header" href="#c-quorum-based-replication"><strong>(c) Quorum-Based Replication</strong></a></h4>
+<ul>
+<li>Write completes after a majority (quorum) of replicas acknowledge.</li>
+<li>Balances safety and availability.</li>
+<li>Foundation of Raft and Paxos protocols.</li>
+</ul>
+<hr />
+<h3 id="154-coordination-protocols"><a class="header" href="#154-coordination-protocols"><strong>15.4 Coordination Protocols</strong></a></h3>
+<h4 id="1-raft-consensus"><a class="header" href="#1-raft-consensus"><strong>(1) Raft Consensus</strong></a></h4>
+<p>Raft structures replication around a <strong>single leader log</strong>:</p>
+<ul>
+<li>All writes go through the leader.</li>
+<li>The leader appends the entry to its log and replicates to followers.</li>
+<li>Once a majority acknowledge, the entry is committed.</li>
+<li>Followers eventually apply committed entries to their state machine.</li>
+</ul>
+<p>This ensures <strong>linearizable consistency</strong> and predictable failover semantics.</p>
+<h4 id="2-paxos"><a class="header" href="#2-paxos"><strong>(2) Paxos</strong></a></h4>
+<p>Paxos uses a more abstract two-phase consensus:</p>
+<ol>
+<li><strong>Prepare Phase:</strong> A proposer selects a proposal number and requests acceptance.</li>
+<li><strong>Accept Phase:</strong> Acceptors agree on a proposal and persist it.</li>
+</ol>
+<p>Though conceptually elegant, Paxos is harder to implement cleanly.
+Raft is typically preferred in production systems for its operational simplicity.</p>
+<h4 id="3-primary-backup"><a class="header" href="#3-primary-backup"><strong>(3) Primary-Backup</strong></a></h4>
+<p>Simpler form of leader-based replication:</p>
+<ul>
+<li>Primary processes writes and sends log updates to backups.</li>
+<li>Failover handled via external controller or heartbeats.</li>
+<li>Lacks formal consensus guarantees but sufficient for internal, tightly managed clusters.</li>
+</ul>
+<h4 id="4-multi-leader--leaderless-dynamo-cassandra"><a class="header" href="#4-multi-leader--leaderless-dynamo-cassandra"><strong>(4) Multi-Leader / Leaderless (Dynamo, Cassandra)</strong></a></h4>
+<p>In eventually consistent systems, any replica can accept writes:</p>
+<ul>
+<li>Writes tagged with <strong>vector clocks</strong> or <strong>timestamps</strong>.</li>
+<li>Conflicts resolved later via reconciliation logic.</li>
+<li>Prioritizes availability (AP systems under CAP).</li>
+</ul>
+<hr />
+<h3 id="155-log-replication--ordering"><a class="header" href="#155-log-replication--ordering"><strong>15.5 Log Replication &amp; Ordering</strong></a></h3>
+<p>At the heart of replication coordination is <strong>log consistency</strong>.</p>
+<p>Every write operation becomes a <strong>log entry</strong>, identified by:</p>
+<ul>
+<li><strong>Index:</strong> Position in the sequence.</li>
+<li><strong>Term / Epoch:</strong> Logical leader generation.</li>
+<li><strong>Payload:</strong> The actual user operation.</li>
+</ul>
+<p>The log ensures <strong>total ordering</strong> of updates across replicas.</p>
+<h4 id="replication-workflow"><a class="header" href="#replication-workflow"><strong>Replication Workflow:</strong></a></h4>
+<ol>
+<li><strong>Client → Leader:</strong>
+Write request arrives.</li>
+<li><strong>Leader Append:</strong>
+Leader appends entry to local log.</li>
+<li><strong>Replication RPC:</strong>
+Leader sends <code>AppendEntries</code> (Raft) or <code>ReplicateLog</code> RPCs to followers.</li>
+<li><strong>Follower Ack:</strong>
+Follower writes entry to disk and acknowledges.</li>
+<li><strong>Leader Commit:</strong>
+When quorum acks, the leader marks the entry committed.</li>
+<li><strong>Apply:</strong>
+Both leader and followers apply the entry to the state machine.</li>
+</ol>
+<hr />
+<h3 id="156-leadership-coordination"><a class="header" href="#156-leadership-coordination"><strong>15.6 Leadership Coordination</strong></a></h3>
+<p>Leadership is crucial to replication stability.</p>
+<h4 id="leader-election"><a class="header" href="#leader-election"><strong>Leader Election</strong></a></h4>
+<p>Triggered when:</p>
+<ul>
+<li>Heartbeats from current leader stop.</li>
+<li>Term expiry or explicit resignation.</li>
+</ul>
+<p>Election algorithm (Raft-style):</p>
+<ol>
+<li>Each follower increments its term and becomes a <strong>candidate</strong>.</li>
+<li>Candidate requests votes from peers.</li>
+<li>Quorum response → becomes leader; otherwise retries.</li>
+</ol>
+<h4 id="leadership-transfer"><a class="header" href="#leadership-transfer"><strong>Leadership Transfer</strong></a></h4>
+<p>To minimize disruption during rebalancing:</p>
+<ul>
+<li>Leader voluntarily steps down (graceful transfer).</li>
+<li>Control plane selects a new leader from the healthiest follower.</li>
+<li>Clients are redirected automatically to the new leader.</li>
+</ul>
+<h4 id="leader-stickiness"><a class="header" href="#leader-stickiness"><strong>Leader Stickiness</strong></a></h4>
+<p>To avoid frequent churn, systems implement <em>minimum leadership duration</em> or hysteresis thresholds before re-election.</p>
+<hr />
+<h3 id="157-failure-recovery"><a class="header" href="#157-failure-recovery"><strong>15.7 Failure Recovery</strong></a></h3>
+<p>Replication coordination must handle various failure modes:</p>
+<div class="table-wrapper"><table><thead><tr><th>Failure</th><th>Detection</th><th>Recovery</th></tr></thead><tbody>
+<tr><td><strong>Leader crash</strong></td><td>Missing heartbeats</td><td>Trigger election</td></tr>
+<tr><td><strong>Follower lag</strong></td><td>Replication offset gap</td><td>Catch-up via log replay</td></tr>
+<tr><td><strong>Network partition</strong></td><td>Missed quorum</td><td>Degrade to read-only or minority</td></tr>
+<tr><td><strong>Disk failure</strong></td><td>I/O errors</td><td>Replace replica and re-sync</td></tr>
+<tr><td><strong>Data corruption</strong></td><td>Checksum mismatch</td><td>Snapshot restore</td></tr>
+</tbody></table>
+</div>
+<p>Recovery always ensures <strong>monotonic log progress</strong> - replicas never roll back to an earlier committed state.</p>
+<hr />
+<h3 id="158-log-catch-up-and-snapshotting"><a class="header" href="#158-log-catch-up-and-snapshotting"><strong>15.8 Log Catch-up and Snapshotting</strong></a></h3>
+<p>When a new replica joins or a lagging follower rejoins, it must <strong>catch up</strong>:</p>
+<ol>
+<li>Leader compares last log index.</li>
+<li>Streams missing entries.</li>
+<li>If lag is too large, sends a <strong>snapshot</strong> instead of entire logs.</li>
+<li>Follower installs snapshot and resumes normal replication.</li>
+</ol>
+<p>This process ensures <strong>fast convergence</strong> even in long downtime scenarios.</p>
+<hr />
+<h3 id="159-replication-in-our-system"><a class="header" href="#159-replication-in-our-system"><strong>15.9 Replication in Our System</strong></a></h3>
+<p>Our distributed database uses a <strong>Raft-inspired replication layer</strong> embedded within each partition group.</p>
+<h4 id="replication-topology"><a class="header" href="#replication-topology"><strong>Replication Topology</strong></a></h4>
+<ul>
+<li>Each partition (range) forms a <strong>Raft group</strong> of size <code>RF</code> (Replication Factor).</li>
+<li>Exactly <strong>one leader</strong> handles all writes.</li>
+<li>Followers replicate logs and serve reads depending on consistency mode.</li>
+</ul>
+<h4 id="write-coordination"><a class="header" href="#write-coordination"><strong>Write Coordination</strong></a></h4>
+<pre><code>Client → Leader → Followers
+      AppendEntries()
+          ↓
+    Quorum ACK → Commit
+</code></pre>
+<ul>
+<li>Writes are committed after majority acknowledgment.</li>
+<li>The leader tracks per-follower replication offsets for flow control.</li>
+<li>Followers that lag too far behind receive incremental snapshots.</li>
+</ul>
+<h4 id="consistency-levels"><a class="header" href="#consistency-levels"><strong>Consistency Levels</strong></a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Mode</th><th>Description</th><th>Use Case</th></tr></thead><tbody>
+<tr><td><strong>Strong (Linearizable)</strong></td><td>Read from current leader</td><td>Financial or metadata tables</td></tr>
+<tr><td><strong>Bounded Staleness</strong></td><td>Read from follower within known lag window</td><td>Analytics queries</td></tr>
+<tr><td><strong>Eventually Consistent</strong></td><td>Read from any replica</td><td>Caches, session data</td></tr>
+</tbody></table>
+</div>
+<h4 id="leader-coordination"><a class="header" href="#leader-coordination"><strong>Leader Coordination</strong></a></h4>
+<p>The control plane ensures:</p>
+<ul>
+<li>No two leaders exist per group (using epoch fencing).</li>
+<li>Rebalancer distributes leadership evenly.</li>
+<li>Leadership transfer occurs before data movement to reduce client disruption.</li>
+</ul>
+<hr />
+<h3 id="1510-write-amplification--pipeline-optimization"><a class="header" href="#1510-write-amplification--pipeline-optimization"><strong>15.10 Write Amplification &amp; Pipeline Optimization</strong></a></h3>
+<p>To maintain high throughput:</p>
+<ul>
+<li>Writes are batched into <em>log groups</em>.</li>
+<li>Replication uses pipelined acknowledgments - next batch sent before previous fully applied.</li>
+<li>Checksums and sequence numbers ensure correctness under concurrent append streams.</li>
+</ul>
+<p>This allows thousands of small writes per second with sub-10ms commit latency on modern hardware.</p>
+<hr />
+<h3 id="1511-observability-and-metrics"><a class="header" href="#1511-observability-and-metrics"><strong>15.11 Observability and Metrics</strong></a></h3>
+<p>Effective replication coordination requires visibility:</p>
+<div class="table-wrapper"><table><thead><tr><th>Metric</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Replication Lag</strong></td><td>Difference between leader’s commit index and follower’s last index.</td></tr>
+<tr><td><strong>Election Frequency</strong></td><td>Measures cluster stability.</td></tr>
+<tr><td><strong>Follower Catch-up Time</strong></td><td>Duration for lagging replica to rejoin quorum.</td></tr>
+<tr><td><strong>Quorum Commit Latency</strong></td><td>Average time to replicate and commit a log entry.</td></tr>
+<tr><td><strong>Leader Distribution</strong></td><td>Ensures balanced leadership load.</td></tr>
+</tbody></table>
+</div>
+<p>These metrics feed into the control plane’s adaptive balancing and alerting subsystems.</p>
+<hr />
+<h3 id="1512-challenges"><a class="header" href="#1512-challenges"><strong>15.12 Challenges</strong></a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Challenge</th><th>Description</th><th>Mitigation</th></tr></thead><tbody>
+<tr><td><strong>Split-Brain Scenarios</strong></td><td>Multiple leaders in partitioned networks</td><td>Epoch fencing, quorum enforcement</td></tr>
+<tr><td><strong>Replica Lag</strong></td><td>Followers fall behind</td><td>Dynamic throttling, snapshot installation</td></tr>
+<tr><td><strong>Slow Quorum</strong></td><td>One node delays entire group</td><td>Exclude slow followers temporarily</td></tr>
+<tr><td><strong>Cross-Region Latency</strong></td><td>High RTT increases commit time</td><td>Multi-region replication pipeline, async reads</td></tr>
+<tr><td><strong>Rebalancing Interference</strong></td><td>Leadership migration during replication</td><td>Graceful leader transfer before data move</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h3 id="1513-summary"><a class="header" href="#1513-summary"><strong>15.13 Summary</strong></a></h3>
+<p>Replication coordination lies at the <strong>core of distributed correctness</strong>.
+Through consensus, ordered logs, and leader election, the system maintains a single, coherent state even amid failures and concurrent operations.</p>
+<p>Our system’s Raft-based design ensures:</p>
+<ul>
+<li>deterministic log order,</li>
+<li>linearizable writes,</li>
+<li>efficient leadership management, and</li>
+<li>fault-tolerant recovery.</li>
+</ul>
+<p>Replication is not static - it continuously adapts to topology, load, and network conditions through coordination between the <strong>data plane (Raft groups)</strong> and the <strong>control plane (placement service)</strong>.</p>
+<h2 id="1514-replication-contracts--pseudocode-implementation"><a class="header" href="#1514-replication-contracts--pseudocode-implementation"><strong>15.14 Replication Contracts &amp; Pseudocode Implementation</strong></a></h2>
+<p>This section connects the theory with practical design - defining <strong>replication APIs</strong>, <strong>control-plane contracts</strong>, and <strong>core pseudocode</strong> that together coordinate replication, elections, and catch-up in your distributed database.
+It uses the same “contract” format we’ve used in previous chapters (e.g., for configuration and metadata APIs), followed by pseudocode that shows message flow and coordination logic.</p>
+<hr />
+<h2 id="1514-replication-contracts--pseudocode-implementation-1"><a class="header" href="#1514-replication-contracts--pseudocode-implementation-1"><strong>15.14 Replication Contracts &amp; Pseudocode Implementation</strong></a></h2>
+<h3 id="15141-overview"><a class="header" href="#15141-overview"><strong>15.14.1 Overview</strong></a></h3>
+<p>Replication involves both:</p>
+<ul>
+<li><strong>Control Plane APIs</strong> – which define how nodes coordinate leadership, membership, and metadata; and</li>
+<li><strong>Data Plane RPCs</strong> – which handle actual log propagation, acknowledgments, and snapshots.</li>
+</ul>
+<p>The following contracts define these interfaces in a modular and implementation-neutral way, allowing for flexibility in deployment across data centers or cloud environments.</p>
+<hr />
+<h3 id="15142-replication-api-contracts"><a class="header" href="#15142-replication-api-contracts"><strong>15.14.2 Replication API Contracts</strong></a></h3>
+<h4 id="1-replicasync-contract"><a class="header" href="#1-replicasync-contract"><strong>(1) ReplicaSync Contract</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>API ReplicaSync {
+    AppendEntries(LogBatch) -&gt; AppendAck
+    FetchEntries(LogRequest) -&gt; LogBatch
+    RequestSnapshot(SnapshotRequest) -&gt; SnapshotData
+    ApplySnapshot(SnapshotData) -&gt; SnapshotAck
+}
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Purpose:</strong>
+Handles the log propagation and synchronization between leader and followers.</p>
+<p><strong>Example:</strong></p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait ReplicaSync {
+    fn append_entries(&amp;mut self, batch: LogBatch) -&gt; AppendAck;
+    fn fetch_entries(&amp;self, req: LogRequest) -&gt; LogBatch;
+    fn request_snapshot(&amp;self, req: SnapshotRequest) -&gt; SnapshotData;
+    fn apply_snapshot(&amp;mut self, snap: SnapshotData) -&gt; SnapshotAck;
+}
+<span class="boring">}</span></code></pre></pre>
+<ul>
+<li><code>AppendEntries</code> is the primary replication RPC (Raft-style).</li>
+<li><code>FetchEntries</code> allows new or lagging nodes to catch up incrementally.</li>
+<li><code>RequestSnapshot</code> / <code>ApplySnapshot</code> are used for bulk recovery when the log gap is large.</li>
+</ul>
+<hr />
+<h4 id="2-leaderelection-contract"><a class="header" href="#2-leaderelection-contract"><strong>(2) LeaderElection Contract</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>API LeaderElection {
+    RequestVote(VoteRequest) -&gt; VoteResponse
+    Heartbeat(HeartbeatMsg) -&gt; HeartbeatAck
+    TransferLeadership(TransferRequest) -&gt; TransferAck
+}
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Purpose:</strong>
+Coordinates election, heartbeats, and graceful leadership transfer.</p>
+<p><strong>Example:</strong></p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait LeaderElection {
+    fn request_vote(&amp;mut self, req: VoteRequest) -&gt; VoteResponse;
+    fn heartbeat(&amp;mut self, msg: HeartbeatMsg) -&gt; HeartbeatAck;
+    fn transfer_leadership(&amp;mut self, req: TransferRequest) -&gt; TransferAck;
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h4 id="3-replicacontrol-contract"><a class="header" href="#3-replicacontrol-contract"><strong>(3) ReplicaControl Contract</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>API ReplicaControl {
+    AddReplica(NodeId, RangeId) -&gt; ReplicaAck
+    RemoveReplica(NodeId, RangeId) -&gt; ReplicaAck
+    PromoteReplica(NodeId, RangeId) -&gt; ReplicaAck
+    DemoteReplica(NodeId, RangeId) -&gt; ReplicaAck
+}
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Purpose:</strong>
+Defines control-plane operations that modify replica membership - used during rebalancing, recovery, or scale-out.</p>
+<p>This aligns with the <em>Replica Lifecycle Management</em> functionality coming in Chapter 16.</p>
+<hr />
+<h4 id="4-client-coordination-contract"><a class="header" href="#4-client-coordination-contract"><strong>(4) Client Coordination Contract</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>API ClientRouting {
+    GetLeader(RangeId) -&gt; NodeAddress
+    GetReplicaSet(RangeId) -&gt; ReplicaSet
+}
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Purpose:</strong>
+Used by the router or proxy layer to direct clients to the current leader or replica set.
+Clients cache this mapping but invalidate it when receiving a “NotLeader” error.</p>
+<hr />
+<h3 id="15143-replication-data-structures"><a class="header" href="#15143-replication-data-structures"><strong>15.14.3 Replication Data Structures</strong></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct LogEntry {
+    term: u64,
+    index: u64,
+    command: Bytes,
+}
+
+struct LogBatch {
+    entries: Vec&lt;LogEntry&gt;,
+    leader_term: u64,
+    prev_index: u64,
+}
+
+struct AppendAck {
+    success: bool,
+    last_applied: u64,
+}
+
+struct VoteRequest {
+    term: u64,
+    candidate_id: NodeId,
+    last_log_index: u64,
+    last_log_term: u64,
+}
+
+struct VoteResponse {
+    term: u64,
+    vote_granted: bool,
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h3 id="15144-replication-pseudocode"><a class="header" href="#15144-replication-pseudocode"><strong>15.14.4 Replication Pseudocode</strong></a></h3>
+<p>Below is a simplified, leader-based replication loop that follows Raft semantics.
+This pseudocode demonstrates the interplay between the contracts above.</p>
+<h4 id="leader-append-flow"><a class="header" href="#leader-append-flow"><strong>Leader Append Flow</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Leader receives client write
+fn handle_client_write(cmd: Command) {
+    let entry = LogEntry {
+        term: current_term,
+        index: last_log_index + 1,
+        command: serialize(cmd),
+    };
+
+    log.append(entry);
+    replicate_to_followers();
+}
+
+fn replicate_to_followers() {
+    for follower in followers {
+        spawn(async move {
+            let batch = build_log_batch(follower);
+            let ack = follower.append_entries(batch).await;
+            if ack.success {
+                mark_acked(follower, batch.last_index);
+            }
+        });
+    }
+
+    if quorum_reached() {
+        commit_entries();
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h4 id="follower-append-flow"><a class="header" href="#follower-append-flow"><strong>Follower Append Flow</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn append_entries(batch: LogBatch) -&gt; AppendAck {
+    if batch.prev_index != log.last_index() {
+        return AppendAck { success: false, last_applied: log.last_index() };
+    }
+
+    for entry in batch.entries {
+        log.append(entry);
+    }
+
+    log.flush_to_disk();
+    AppendAck { success: true, last_applied: log.last_index() }
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h4 id="leader-election-1"><a class="header" href="#leader-election-1"><strong>Leader Election</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn start_election() {
+    current_term += 1;
+    voted_for = self.id;
+    votes = 1;
+
+    for peer in peers {
+        spawn(async move {
+            let req = VoteRequest {
+                term: current_term,
+                candidate_id: self.id,
+                last_log_index: log.last_index(),
+                last_log_term: log.last_term(),
+            };
+            let res = peer.request_vote(req).await;
+            if res.vote_granted {
+                votes += 1;
+                if votes &gt;= quorum_size() {
+                    become_leader();
+                }
+            }
+        });
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h4 id="follower-catch-up"><a class="header" href="#follower-catch-up"><strong>Follower Catch-Up</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>async fn catch_up_from_leader(leader: NodeId) {
+    let mut next_index = log.last_index() + 1;
+
+    loop {
+        let req = LogRequest { from_index: next_index };
+        let batch = leader.fetch_entries(req).await;
+
+        if batch.entries.is_empty() {
+            break; // caught up
+        }
+
+        for e in batch.entries {
+            log.append(e);
+        }
+
+        next_index = log.last_index() + 1;
+    }
+
+    log.flush_to_disk();
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h3 id="15145-control-plane-integration"><a class="header" href="#15145-control-plane-integration"><strong>15.14.5 Control Plane Integration</strong></a></h3>
+<p>Replication coordination interacts closely with the control plane’s <strong>Placement Service</strong> (see Chapter 14):</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>API PlacementControl {
+    GetReplicaTopology(RangeId) -&gt; ReplicaMap
+    UpdateLeader(RangeId, LeaderId) -&gt; Ack
+    ReportReplicaLag(RangeId, NodeId, LagMetrics) -&gt; Ack
+}
+<span class="boring">}</span></code></pre></pre>
+<ul>
+<li>The <strong>control plane</strong> tracks where each replica lives and who the leader is.</li>
+<li>The <strong>replication layer</strong> reports metrics such as log lag, health, and election outcomes.</li>
+<li>This feedback loop enables automated balancing, leadership redistribution, and failure detection.</li>
+</ul>
+<hr />
+<h3 id="15146-message-timeline"><a class="header" href="#15146-message-timeline"><strong>15.14.6 Message Timeline</strong></a></h3>
+<p>Below illustrates a simplified <strong>timeline of messages</strong> during replication:</p>
+<pre><code>Client ──► Leader ──► Followers
+   │          │
+   │          ├─ AppendEntries(batch)
+   │          │       │
+   │          │       └─► AppendAck(success)
+   │          │
+   │          └─ Commit after quorum
+   │
+   └─► Response (CommitAck)
+</code></pre>
+<p>During failures:</p>
+<ul>
+<li>If the leader dies → new election via <code>RequestVote</code>.</li>
+<li>New leader reconciles logs using <code>AppendEntries</code> with conflict detection.</li>
+<li>Followers trim or replay logs to match the leader’s committed index.</li>
+</ul>
+<hr />
+<h3 id="15147-key-invariants"><a class="header" href="#15147-key-invariants"><strong>15.14.7 Key Invariants</strong></a></h3>
+<p>To ensure safety and consistency, the replication subsystem enforces:</p>
+<div class="table-wrapper"><table><thead><tr><th>Invariant</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Log Matching Property</strong></td><td>If two logs have same index+term, all previous entries are identical.</td></tr>
+<tr><td><strong>Leader Completeness</strong></td><td>A leader always contains all committed entries from prior terms.</td></tr>
+<tr><td><strong>Quorum Commit Rule</strong></td><td>Entry is committed only if majority replicated it in current term.</td></tr>
+<tr><td><strong>Monotonic Commit Index</strong></td><td>Commit index never decreases across terms.</td></tr>
+<tr><td><strong>Single Active Leader per Term</strong></td><td>Prevents concurrent commits in partitioned networks.</td></tr>
+</tbody></table>
+</div>
+<p>These invariants are formally verifiable and underpin the correctness of the replication system.</p>
+<hr />
+<h3 id="15148-summary"><a class="header" href="#15148-summary"><strong>15.14.8 Summary</strong></a></h3>
+<p>This section formalized the <strong>contracts and pseudocode</strong> underlying replication coordination.
+The defined APIs - <code>ReplicaSync</code>, <code>LeaderElection</code>, and <code>ReplicaControl</code> - separate <strong>control</strong> from <strong>data replication</strong>, enabling modular implementation and integration with higher-level rebalancing and placement services.</p>
+<p>By combining:</p>
+<ul>
+<li>well-defined contracts,</li>
+<li>deterministic log semantics,</li>
+<li>and fault-tolerant election logic,
+the system guarantees strong consistency and predictable recovery under failure.</li>
+</ul>
+<hr />
+<p>Next, we’ll move naturally into <strong>Chapter 16 - Snapshotting &amp; Log Compaction</strong>, where we handle log growth, checkpointing, and efficient state recovery while preserving these replication guarantees.</p>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_14_rebalancing.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_16_recovery_repair.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_14_rebalancing.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_16_recovery_repair.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

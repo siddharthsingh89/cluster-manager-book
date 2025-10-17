@@ -1,0 +1,426 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 16 - Recovery &amp; Repair</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-16---recovery--repair"><a class="header" href="#chapter-16---recovery--repair"><strong>Chapter 16 - Recovery &amp; Repair</strong></a></h1>
+<h3 id="1-overview"><a class="header" href="#1-overview"><strong>1. Overview</strong></a></h3>
+<p>Failures are inevitable in any distributed system. Machines crash, disks fail, networks partition, and processes terminate unexpectedly. The goal of a distributed database is not to prevent failures-but to <em>recover</em> gracefully and <em>repair</em> inconsistencies once normal operation resumes.</p>
+<p>Recovery ensures the system can restore its state after a crash or restart. Repair ensures that replicas, logs, and metadata remain consistent across the cluster. Together, they define the system’s <em>self-healing</em> capability.</p>
+<hr />
+<h3 id="2-types-of-failures"><a class="header" href="#2-types-of-failures"><strong>2. Types of Failures</strong></a></h3>
+<p>Distributed databases face multiple classes of failures, each requiring different recovery mechanisms:</p>
+<div class="table-wrapper"><table><thead><tr><th>Failure Type</th><th>Description</th><th>Recovery Scope</th></tr></thead><tbody>
+<tr><td><strong>Process Failure</strong></td><td>Node process crashes or restarts.</td><td>Local recovery of logs and caches.</td></tr>
+<tr><td><strong>Node/Host Failure</strong></td><td>Machine or VM becomes unavailable.</td><td>Reallocation of replicas and state transfer.</td></tr>
+<tr><td><strong>Disk/Data Corruption</strong></td><td>Data files or log segments become unreadable.</td><td>Re-replication from healthy replicas.</td></tr>
+<tr><td><strong>Network Partition</strong></td><td>Connectivity loss between nodes or datacenters.</td><td>Partial recovery and reconciliation.</td></tr>
+<tr><td><strong>Cluster-Wide Outage</strong></td><td>Multiple nodes or zones fail simultaneously.</td><td>Coordinated recovery via snapshot restore.</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h3 id="3-recovery-phases"><a class="header" href="#3-recovery-phases"><strong>3. Recovery Phases</strong></a></h3>
+<p>Recovery in a distributed database typically proceeds through <strong>three logical phases</strong>:</p>
+<ol>
+<li><strong>Detection</strong> – Control plane or leader notices missing heartbeats or failed responses.</li>
+<li><strong>Reconstruction</strong> – Logs, snapshots, or replicas are used to reconstruct consistent state.</li>
+<li><strong>Reintegration</strong> – Recovered node rejoins the cluster and resumes normal operations.</li>
+</ol>
+<p>Each subsystem-storage, replication, placement, and metadata-has its own recovery logic, but all follow this pattern.</p>
+<hr />
+<h3 id="4-local-recovery"><a class="header" href="#4-local-recovery"><strong>4. Local Recovery</strong></a></h3>
+<p>When a node restarts after a crash, it performs <em>local recovery</em> before rejoining the cluster.</p>
+<h4 id="41-log-replay"><a class="header" href="#41-log-replay"><strong>4.1 Log Replay</strong></a></h4>
+<p>Nodes maintain <em>write-ahead logs (WALs)</em> to ensure durability. Upon restart:</p>
+<ol>
+<li><strong>Scan the WAL</strong> from the last checkpoint.</li>
+<li><strong>Apply</strong> committed entries to local storage.</li>
+<li><strong>Discard</strong> incomplete or corrupted entries.</li>
+</ol>
+<p>This guarantees that all persisted operations are replayed exactly once.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn replay_log(log: &amp;mut WriteAheadLog, store: &amp;mut Storage) -&gt; Result&lt;()&gt; {
+    for entry in log.read_from_checkpoint()? {
+        if entry.is_valid() &amp;&amp; entry.is_committed() {
+            store.apply(entry)?;
+        }
+    }
+    Ok(())
+}
+<span class="boring">}</span></code></pre></pre>
+<h4 id="42-snapshot-restoration"><a class="header" href="#42-snapshot-restoration"><strong>4.2 Snapshot Restoration</strong></a></h4>
+<p>If replaying the entire log is expensive, the system can restore a snapshot and replay only recent deltas:</p>
+<pre><code>snapshot → replay(log after snapshot)
+</code></pre>
+<p>Snapshots may be stored locally or in distributed blob storage.</p>
+<hr />
+<h3 id="5-replica-repair"><a class="header" href="#5-replica-repair"><strong>5. Replica Repair</strong></a></h3>
+<p>After recovery, replicas may diverge in state due to missed updates, partial replication, or network partitions. The system must reconcile these inconsistencies through <strong>replica repair</strong>.</p>
+<h4 id="51-detection"><a class="header" href="#51-detection"><strong>5.1 Detection</strong></a></h4>
+<p>Use <em>checksums</em>, <em>version vectors</em>, or <em>Merkle trees</em> to detect divergence between replicas.</p>
+<ul>
+<li><strong>Checksums</strong> – Compare hash of file ranges or SSTables.</li>
+<li><strong>Merkle Trees</strong> – Hierarchical hash trees to efficiently detect differences.</li>
+<li><strong>Version Vectors</strong> – Logical timestamps for per-key consistency.</li>
+</ul>
+<h4 id="52-repair-mechanisms"><a class="header" href="#52-repair-mechanisms"><strong>5.2 Repair Mechanisms</strong></a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Description</th><th>Use Case</th></tr></thead><tbody>
+<tr><td><strong>Read Repair</strong></td><td>Fix inconsistencies during read path.</td><td>Opportunistic fix.</td></tr>
+<tr><td><strong>Anti-Entropy Repair</strong></td><td>Periodic background reconciliation using Merkle trees.</td><td>Full sync.</td></tr>
+<tr><td><strong>Hinted Handoff</strong></td><td>Temporarily buffer writes for unavailable replicas.</td><td>Short-term unavailability.</td></tr>
+<tr><td><strong>Incremental Repair</strong></td><td>Compare and fix only changed ranges.</td><td>Efficient recovery.</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h3 id="6-cluster-level-recovery"><a class="header" href="#6-cluster-level-recovery"><strong>6. Cluster-Level Recovery</strong></a></h3>
+<p>When multiple nodes fail, the control plane coordinates cluster-wide recovery:</p>
+<ol>
+<li><strong>Mark failed nodes</strong> and evacuate their replicas.</li>
+<li><strong>Reassign partitions</strong> to healthy nodes.</li>
+<li><strong>Trigger re-replication</strong> from surviving copies.</li>
+<li><strong>Update placement metadata</strong> and mark recovery complete.</li>
+</ol>
+<p>This process is tightly coupled with <em>rebalancing</em> (Chapter 14) and <em>replication coordination</em> (Chapter 15).</p>
+<hr />
+<h3 id="7-metadata-and-transaction-recovery"><a class="header" href="#7-metadata-and-transaction-recovery"><strong>7. Metadata and Transaction Recovery</strong></a></h3>
+<p>Metadata (e.g., placement tables, configuration state) and transactional logs require <em>coordinated recovery</em> to maintain consistency.</p>
+<h4 id="71-metadata-journaling"><a class="header" href="#71-metadata-journaling"><strong>7.1 Metadata Journaling</strong></a></h4>
+<p>The control plane maintains a journal of configuration changes, ensuring that even if a master node fails, the next leader can replay the journal to restore system state.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait MetadataRecovery {
+    fn replay_journal(&amp;mut self, entries: Vec&lt;MetaEntry&gt;) -&gt; Result&lt;()&gt;;
+    fn validate_state(&amp;self) -&gt; bool;
+}
+<span class="boring">}</span></code></pre></pre>
+<h4 id="72-transaction-rollback"><a class="header" href="#72-transaction-rollback"><strong>7.2 Transaction Rollback</strong></a></h4>
+<p>In-flight transactions at the time of crash must be resolved:</p>
+<ul>
+<li><strong>Committed but unacknowledged</strong> → replay.</li>
+<li><strong>In-progress</strong> → abort.</li>
+<li><strong>Aborted but persisted</strong> → roll back.</li>
+</ul>
+<p>This requires <em>write-ahead logging at transaction layer</em> and <em>idempotent operations</em>.</p>
+<hr />
+<h3 id="8-apis--contracts"><a class="header" href="#8-apis--contracts"><strong>8. APIs &amp; Contracts</strong></a></h3>
+<p>To make recovery standardized and modular, we define a set of <strong>Recovery Contracts</strong> across system layers.</p>
+<h4 id="1-recovery-contracts"><a class="header" href="#1-recovery-contracts"><strong>(1) Recovery Contracts</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>API NodeRecovery {
+    ReplayLogs(CheckpointId) -&gt; ReplayStatus
+    RestoreSnapshot(SnapshotId) -&gt; RestoreAck
+    VerifyIntegrity(FileRange) -&gt; IntegrityReport
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Allows storage layer to rebuild local state from logs or snapshots.</p>
+<h4 id="2-replica-repair-contracts"><a class="header" href="#2-replica-repair-contracts"><strong>(2) Replica Repair Contracts</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>API ReplicaRepair {
+    CompareChecksums(ReplicaId, Range) -&gt; DiffReport
+    SyncMissingEntries(ReplicaId, DiffReport) -&gt; SyncAck
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Coordinates data consistency between peers after repair.</p>
+<h4 id="3-metadata-recovery-contracts"><a class="header" href="#3-metadata-recovery-contracts"><strong>(3) Metadata Recovery Contracts</strong></a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>API MetaRecovery {
+    ReplayJournal(JournalRange) -&gt; JournalAck
+    ValidateClusterState() -&gt; ValidationReport
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Used by control plane to reconstruct cluster topology and configurations.</p>
+<hr />
+<h3 id="9-pseudocode-example-end-to-end-node-recovery"><a class="header" href="#9-pseudocode-example-end-to-end-node-recovery"><strong>9. Pseudocode Example: End-to-End Node Recovery</strong></a></h3>
+<p>Below is a simplified high-level flow executed by a recovering node:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn recover_node(node_id: NodeId) -&gt; Result&lt;()&gt; {
+    // Phase 1: Local recovery
+    replay_log(&amp;mut wal, &amp;mut store)?;
+    restore_snapshots_if_needed()?;
+    verify_data_integrity()?;
+    
+    // Phase 2: Coordination with control plane
+    let missing_replicas = fetch_missing_replicas(node_id)?;
+    for r in missing_replicas {
+        request_replica_repair(r)?;
+    }
+    
+    // Phase 3: Reintegration
+    notify_cluster(NodeState::Healthy)?;
+    Ok(())
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h3 id="10-design-considerations"><a class="header" href="#10-design-considerations"><strong>10. Design Considerations</strong></a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Concern</th><th>Strategy</th></tr></thead><tbody>
+<tr><td><strong>Idempotency</strong></td><td>Every recovery and repair operation must be idempotent to avoid duplication.</td></tr>
+<tr><td><strong>Isolation</strong></td><td>Recovering nodes should not serve traffic until verified.</td></tr>
+<tr><td><strong>Prioritization</strong></td><td>Critical partitions should be repaired first.</td></tr>
+<tr><td><strong>Resource Control</strong></td><td>Limit concurrent repairs to avoid disk/network overload.</td></tr>
+<tr><td><strong>Incrementality</strong></td><td>Allow partial, resumable recovery steps.</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h3 id="11-real-world-examples"><a class="header" href="#11-real-world-examples"><strong>11. Real-World Examples</strong></a></h3>
+<ul>
+<li><strong>Cassandra</strong>: Uses Merkle trees for anti-entropy repair and hinted handoff for temporary failures.</li>
+<li><strong>CockroachDB</strong>: Replays Raft logs from durable storage and applies snapshots for node rejoin.</li>
+<li><strong>MongoDB</strong>: Uses oplog tailing and rollback via sync source election.</li>
+<li><strong>TiDB</strong>: Reconstructs raft groups from logs and auto-rebalances on node loss.</li>
+</ul>
+<hr />
+<h3 id="12-exercises"><a class="header" href="#12-exercises"><strong>12. Exercises</strong></a></h3>
+<ol>
+<li>Explain the difference between <em>read repair</em> and <em>anti-entropy repair</em> with examples.</li>
+<li>How does snapshot-based recovery reduce recovery time compared to log replay?</li>
+<li>Why must recovery operations be idempotent?</li>
+<li>Simulate a node restart scenario and describe the order of recovery operations.</li>
+<li>Design a repair algorithm for detecting inconsistent replicas using Merkle trees.</li>
+<li>Discuss trade-offs between synchronous and asynchronous repair.</li>
+<li>How does hinted handoff help in availability but risk temporary inconsistency?</li>
+<li>Extend the <code>ReplicaRepair</code> API to support incremental repair.</li>
+<li>What role does metadata journaling play in system-wide recovery?</li>
+<li>Build a test plan for validating recovery under partial network failures.</li>
+</ol>
+<hr />
+<h3 id="13-summary"><a class="header" href="#13-summary"><strong>13. Summary</strong></a></h3>
+<p>Recovery and repair mechanisms enable a distributed database to tolerate failures, self-heal, and maintain durability. From local log replay to cluster-wide anti-entropy, these techniques form the backbone of a system’s reliability. Combined with replication, placement, and rebalancing strategies, they complete the lifecycle of <em>resilient data management</em>.</p>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_15_replication_coordination.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_17_configuration_management.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_15_replication_coordination.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_17_configuration_management.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

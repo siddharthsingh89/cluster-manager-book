@@ -1,0 +1,494 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 1 - Why a Cluster Manager?</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-1---why-a-cluster-manager"><a class="header" href="#chapter-1---why-a-cluster-manager">Chapter 1 - Why a Cluster Manager?</a></h1>
+<p>Every distributed database is, at its core, a collection of independent nodes that must <em>somehow</em> act together as a single system.
+Each node can store data, serve queries, and replicate updates - but none of that coordination happens automatically.
+Someone has to keep track of who’s in the cluster, who’s healthy, where the data lives, and how to react when something breaks.</p>
+<p>That “someone” is the <strong>cluster manager</strong>.</p>
+<hr />
+<h2 id="11-the-hidden-brain-of-the-cluster"><a class="header" href="#11-the-hidden-brain-of-the-cluster">1.1 The Hidden Brain of the Cluster</a></h2>
+<p>If the storage engine is the <strong>heart</strong> of a distributed database, then the cluster manager is its <strong>brain</strong>.
+It doesn’t store data or run queries directly - instead, it <em>makes sure</em> every component that does is aware, connected, and consistent with the rest of the system.</p>
+<p>Imagine a cluster without a manager:</p>
+<ul>
+<li>A node goes offline - who notices?</li>
+<li>A new node joins - who assigns it data?</li>
+<li>A leader crashes - who elects a new one?</li>
+<li>The cluster configuration changes - who updates all participants?</li>
+</ul>
+<p>Without a central or coordinated control process, the system would quickly drift into inconsistency, lost data, or downtime.
+A cluster manager solves this by providing a <strong>control plane</strong> - a layer responsible for coordination, configuration, and metadata management.</p>
+<hr />
+<h2 id="12-what-does-it-actually-do"><a class="header" href="#12-what-does-it-actually-do">1.2 What Does It Actually Do?</a></h2>
+<p>A cluster manager’s responsibilities vary by system, but at a high level, it handles:</p>
+<ol>
+<li>
+<p><strong>Membership and Discovery</strong>
+Tracks which nodes are part of the cluster, their states (alive, joining, leaving), and connection details.</p>
+</li>
+<li>
+<p><strong>Leadership and Coordination</strong>
+Decides who leads replication groups or partitions, and ensures there’s always a clear, single leader.</p>
+</li>
+<li>
+<p><strong>Configuration Management</strong>
+Distributes and synchronizes cluster-wide settings, topology maps, and versioning information.</p>
+</li>
+<li>
+<p><strong>Health Monitoring</strong>
+Continuously probes node health (via heartbeats or leases) and triggers corrective actions when failures are detected.</p>
+</li>
+<li>
+<p><strong>Scaling and Rebalancing</strong>
+When nodes join or leave, it orchestrates data movement and replica reassignment safely.</p>
+</li>
+<li>
+<p><strong>Metadata Store</strong>
+Maintains persistent cluster metadata - often via an embedded key-value store like Etcd, Zookeeper, or Raft-backed internal storage.</p>
+</li>
+</ol>
+<p>Together, these functions ensure that the <strong>data plane</strong> (storage + query layers) can operate smoothly, without having to worry about who’s up, down, or in charge.</p>
+<hr />
+<h2 id="13-cluster-manager-vs-other-components"><a class="header" href="#13-cluster-manager-vs-other-components">1.3 Cluster Manager vs. Other Components</a></h2>
+<p>It’s easy to confuse the cluster manager with components like:</p>
+<ul>
+<li><strong>Storage Engine:</strong> Handles data persistence, indexing, and WAL operations.</li>
+<li><strong>Query Engine:</strong> Parses and executes queries, planning distributed operations.</li>
+<li><strong>Replication Layer:</strong> Ensures data consistency across replicas.</li>
+</ul>
+<p>The cluster manager, however, sits <em>above</em> all of them - orchestrating their relationships.
+It doesn’t decide <em>what</em> data to store or <em>how</em> to replicate it - only <em>who</em> does it, <em>where</em>, and <em>when</em> to react.</p>
+<p>Think of it as the <strong>control tower</strong> of an airport. It doesn’t fly planes - it coordinates them so that they don’t collide.</p>
+<hr />
+<h2 id="14-do-all-systems-need-one"><a class="header" href="#14-do-all-systems-need-one">1.4 Do All Systems Need One?</a></h2>
+<p>Not always - but most modern distributed databases have evolved to include one, either explicitly or implicitly.</p>
+<ul>
+<li><strong>Single-node systems</strong> (like SQLite) have no need for a cluster manager.</li>
+<li><strong>Shared-nothing systems</strong> (like early MySQL setups) relied on manual configuration and external orchestration.</li>
+<li><strong>Modern distributed systems</strong> (Cassandra, TiDB, CockroachDB, MongoDB, etc.) embed or delegate this logic to a dedicated process.</li>
+</ul>
+<p>In some architectures, <em>every node</em> includes the cluster manager logic (e.g., Cassandra’s gossip protocol).
+In others, there’s a dedicated <strong>control plane service</strong> (e.g., TiDB’s PD server or CockroachDB’s system ranges).</p>
+<p>Both designs share the same motivation: <strong>automatic coordination in an unreliable, evolving cluster</strong>.</p>
+<hr />
+<h2 id="15-the-cost-of-not-having-one"><a class="header" href="#15-the-cost-of-not-having-one">1.5 The Cost of Not Having One</a></h2>
+<p>Without a cluster manager, distributed systems tend to accumulate “manual glue”:</p>
+<ul>
+<li>Configuration files hard-coded with IPs and ports.</li>
+<li>Scripts for rebalancing or restarting nodes.</li>
+<li>Manual steps for failover or topology changes.</li>
+<li>Risk of split-brain when multiple leaders think they’re in charge.</li>
+</ul>
+<p>These issues grow exponentially with scale - from a few nodes to hundreds.
+A cluster manager replaces ad-hoc scripts and tribal knowledge with a <strong>systematic coordination layer</strong>, improving reliability, observability, and automation.</p>
+<hr />
+<h2 id="16-evolution-of-the-idea"><a class="header" href="#16-evolution-of-the-idea">1.6 Evolution of the Idea</a></h2>
+<p>Historically, cluster managers emerged out of necessity:</p>
+<div class="table-wrapper"><table><thead><tr><th>Era</th><th>Example Systems</th><th>Coordination Mechanism</th></tr></thead><tbody>
+<tr><td>Early 2000s</td><td>MySQL master-slave setups</td><td>Manual scripts, DNS-based failover</td></tr>
+<tr><td>Late 2000s</td><td>Cassandra, Zookeeper</td><td>Gossip + centralized coordination</td></tr>
+<tr><td>2010s</td><td>etcd, Kubernetes</td><td>Consensus-based declarative control</td></tr>
+<tr><td>2020s+</td><td>TiDB, CockroachDB</td><td>Integrated Raft-based metadata control planes</td></tr>
+</tbody></table>
+</div>
+<p>Over time, systems converged on a set of reusable patterns - leader election, heartbeats, leases, and strongly consistent metadata stores - forming the backbone of modern cluster management.</p>
+<hr />
+<h2 id="17-this-books-view"><a class="header" href="#17-this-books-view">1.7 This Book’s View</a></h2>
+<p>In this book, we’ll treat the cluster manager as a <strong>first-class component</strong> - a process (or module) responsible for maintaining cluster state, coordinating actions, and exposing APIs to both humans and machines.</p>
+<p>Our goal isn’t to re-implement a specific system, but to:</p>
+<ul>
+<li>Understand <em>why</em> cluster managers exist,</li>
+<li>Study <em>how</em> others solved the same problems, and</li>
+<li>Build <em>our own</em> in small, understandable steps.</li>
+</ul>
+<hr />
+<h2 id="18-visualizing-the-cluster-managers-role"><a class="header" href="#18-visualizing-the-cluster-managers-role">1.8 Visualizing the Cluster Manager’s Role</a></h2>
+<p>To make the distinction between the <strong>data plane</strong> and <strong>control plane</strong> clear, let’s visualize where the cluster manager fits in a distributed database.</p>
+<pre><code class="language-text">                   +-----------------------------+
+                   |        Control Plane        |
+                   |-----------------------------|
+                   |   Cluster Manager Process   |
+                   |-----------------------------|
+                   |  • Membership Management    |
+                   |  • Leader Election          |
+                   |  • Configuration Updates    |
+                   |  • Health Monitoring        |
+                   |  • Rebalancing Decisions    |
+                   +-----------------------------+
+                                 |
+                                 |  (issues commands, distributes metadata)
+                                 v
+        +--------------------------------------------------------------+
+        |                        Data Plane                            |
+        |--------------------------------------------------------------|
+        |   Node A         Node B         Node C         Node D        |
+        |  +-------+      +-------+      +-------+      +-------+      |
+        |  | WAL   |      | WAL   |      | WAL   |      | WAL   |      |
+        |  | Store |      | Store |      | Store |      | Store |      |
+        |  | Query |      | Query |      | Query |      | Query |      |
+        |  +-------+      +-------+      +-------+      +-------+      |
+        |          &lt;---- Replication / Data Synchronization -----&gt;     |
+        +--------------------------------------------------------------+
+</code></pre>
+<p><strong>Explanation:</strong></p>
+<ul>
+<li>The <strong>control plane</strong> (top box) is where the cluster manager lives - it’s responsible for <em>coordination logic</em> and <em>metadata consistency</em>.</li>
+<li>The <strong>data plane</strong> (bottom box) is where the actual storage and query execution happen.</li>
+<li>Arrows between them represent <strong>control flow</strong>, not data flow. The cluster manager issues instructions, updates configurations, and monitors node health, but does not directly handle data.</li>
+</ul>
+<p>This mental model - separating <strong>control</strong> from <strong>data</strong> - will guide every design decision we make in later chapters.</p>
+<hr />
+<h2 id="19-summary"><a class="header" href="#19-summary">1.9 Summary</a></h2>
+<p>A cluster manager exists because distributed systems are dynamic - nodes join, leave, and fail constantly.
+Without a centralized (or logically centralized) coordinator, it’s impossible to maintain consistent metadata, automate recovery, or scale smoothly.</p>
+<p>It’s the <strong>brain</strong> that allows a cluster to appear like a single, reliable system - even when everything underneath is chaotic.</p>
+<hr />
+<h2 id="exercises---chapter-1-why-a-cluster-manager"><a class="header" href="#exercises---chapter-1-why-a-cluster-manager">Exercises - Chapter 1: Why a Cluster Manager?</a></h2>
+<hr />
+<h3 id="1-what-is-the-main-purpose-of-a-cluster-manager-in-a-distributed-database"><a class="header" href="#1-what-is-the-main-purpose-of-a-cluster-manager-in-a-distributed-database"><strong>1. What is the main purpose of a cluster manager in a distributed database?</strong></a></h3>
+<p><strong>Answer:</strong>
+A cluster manager acts as the <strong>control plane</strong> of a distributed system. Its main purpose is to coordinate cluster metadata, manage node membership, handle leader election, and maintain overall system consistency - ensuring that independent nodes behave as one coherent system.</p>
+<hr />
+<h3 id="2-what-problems-would-arise-if-a-distributed-system-operated-without-a-cluster-manager"><a class="header" href="#2-what-problems-would-arise-if-a-distributed-system-operated-without-a-cluster-manager"><strong>2. What problems would arise if a distributed system operated without a cluster manager?</strong></a></h3>
+<p><strong>Answer:</strong>
+Without a cluster manager:</p>
+<ul>
+<li>Node joins/leaves would require manual reconfiguration.</li>
+<li>Failovers could cause split-brain scenarios.</li>
+<li>No centralized view of health or cluster state.</li>
+<li>Scaling and rebalancing would become manual and error-prone.
+In short, the system would lose automation, consistency, and resilience.</li>
+</ul>
+<hr />
+<h3 id="3-explain-the-difference-between-the-control-plane-and-the-data-plane"><a class="header" href="#3-explain-the-difference-between-the-control-plane-and-the-data-plane"><strong>3. Explain the difference between the control plane and the data plane.</strong></a></h3>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>Control Plane:</strong> Manages coordination, configuration, and metadata. It decides <em>what</em> should happen.</li>
+<li><strong>Data Plane:</strong> Performs actual data operations - storage, replication, and query execution. It does <em>the work</em>.
+The control plane controls <em>logic</em>, while the data plane executes <em>actions</em>.</li>
+</ul>
+<hr />
+<h3 id="4-which-of-the-following-is-not-typically-a-responsibility-of-the-cluster-manager"><a class="header" href="#4-which-of-the-following-is-not-typically-a-responsibility-of-the-cluster-manager"><strong>4. Which of the following is NOT typically a responsibility of the cluster manager?</strong></a></h3>
+<p>A. Leader election
+B. WAL persistence
+C. Membership tracking
+D. Node health monitoring</p>
+<p><strong>Answer:</strong>
+<strong>B. WAL persistence</strong> - that’s part of the storage engine, not the cluster manager.</p>
+<hr />
+<h3 id="5-in-which-type-of-system-might-you-not-need-a-cluster-manager"><a class="header" href="#5-in-which-type-of-system-might-you-not-need-a-cluster-manager"><strong>5. In which type of system might you not need a cluster manager?</strong></a></h3>
+<p><strong>Answer:</strong>
+In <strong>single-node databases</strong> (like SQLite) or small static clusters with fixed nodes and no automatic scaling. These environments don’t require automated coordination or failover handling.</p>
+<hr />
+<h3 id="6-how-do-systems-like-cassandra-differ-from-tidb-in-cluster-management"><a class="header" href="#6-how-do-systems-like-cassandra-differ-from-tidb-in-cluster-management"><strong>6. How do systems like Cassandra differ from TiDB in cluster management?</strong></a></h3>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>Cassandra</strong> uses a <em>peer-to-peer gossip protocol</em> where every node includes the cluster manager logic (no central control).</li>
+<li><strong>TiDB</strong> uses a <em>dedicated control plane service</em> called the Placement Driver (PD) to coordinate nodes centrally using consensus.</li>
+</ul>
+<hr />
+<h3 id="7-what-is-the-brain-vs-heart-analogy-used-in-this-chapter"><a class="header" href="#7-what-is-the-brain-vs-heart-analogy-used-in-this-chapter"><strong>7. What is the “brain” vs. “heart” analogy used in this chapter?</strong></a></h3>
+<p><strong>Answer:</strong></p>
+<ul>
+<li>The <strong>storage engine</strong> is the <em>heart</em> - it pumps and stores data.</li>
+<li>The <strong>cluster manager</strong> is the <em>brain</em> - it coordinates and makes decisions.
+Together, they keep the system both alive and intelligent.</li>
+</ul>
+<hr />
+<h3 id="8-what-are-the-common-coordination-primitives-a-cluster-manager-might-rely-on"><a class="header" href="#8-what-are-the-common-coordination-primitives-a-cluster-manager-might-rely-on"><strong>8. What are the common coordination primitives a cluster manager might rely on?</strong></a></h3>
+<p><strong>Answer:</strong></p>
+<ul>
+<li>Leader election</li>
+<li>Heartbeats</li>
+<li>Leases</li>
+<li>Versioned configuration metadata</li>
+<li>Consensus algorithms (like Raft or Paxos)
+These primitives help maintain consistent state and detect failures.</li>
+</ul>
+<hr />
+<h3 id="9-why-does-the-complexity-of-cluster-management-grow-with-scale"><a class="header" href="#9-why-does-the-complexity-of-cluster-management-grow-with-scale"><strong>9. Why does the complexity of cluster management grow with scale?</strong></a></h3>
+<p><strong>Answer:</strong>
+As the number of nodes increases:</p>
+<ul>
+<li>Failure probability rises.</li>
+<li>Communication paths multiply.</li>
+<li>Configuration drift becomes likely.
+A cluster manager centralizes and automates these complexities, ensuring the system scales without losing coherence.</li>
+</ul>
+<hr />
+<h3 id="10-what-long-term-design-trend-has-emerged-in-cluster-managers-over-the-past-two-decades"><a class="header" href="#10-what-long-term-design-trend-has-emerged-in-cluster-managers-over-the-past-two-decades"><strong>10. What long-term design trend has emerged in cluster managers over the past two decades?</strong></a></h3>
+<p><strong>Answer:</strong>
+A shift from:</p>
+<ul>
+<li><strong>Manual orchestration</strong> → to</li>
+<li><strong>Centralized managers (Zookeeper, etcd)</strong> → to</li>
+<li><strong>Integrated consensus-based control planes (TiDB PD, CockroachDB nodes)</strong></li>
+</ul>
+<p>This evolution emphasizes <em>strong consistency, automation,</em> and <em>self-healing clusters</em>.</p>
+<hr />
+<h2 id="challenge-problems---think-like-a-cluster-designer"><a class="header" href="#challenge-problems---think-like-a-cluster-designer">Challenge Problems - Think Like a Cluster Designer</a></h2>
+<p>These challenges are open-ended design explorations meant to deepen your understanding.
+There are no single “correct” answers - think in trade-offs, failure cases, and design patterns.</p>
+<hr />
+<h3 id="1-manual-coordination-scenario"><a class="header" href="#1-manual-coordination-scenario"><strong>1. Manual Coordination Scenario</strong></a></h3>
+<p>Imagine a five-node distributed database without a cluster manager.
+One node crashes and restarts with an empty configuration file.</p>
+<p><strong>Question:</strong>
+How could the system recover manually?
+What manual steps would operators take, and what failure risks could arise if two nodes attempt to become “leader” simultaneously?</p>
+<hr />
+<h3 id="2-control-vs-data-plane-failure"><a class="header" href="#2-control-vs-data-plane-failure"><strong>2. Control vs. Data Plane Failure</strong></a></h3>
+<p>Suppose your cluster manager crashes, but all data nodes are still running and serving queries.</p>
+<p><strong>Question:</strong>
+What short-term impact does this have?
+How would recovery differ if the cluster manager was centralized vs. replicated?
+What safeguards would you design so that queries can continue safely?</p>
+<hr />
+<h3 id="3-designing-a-minimal-cluster-manager"><a class="header" href="#3-designing-a-minimal-cluster-manager"><strong>3. Designing a Minimal Cluster Manager</strong></a></h3>
+<p>Design a <em>toy</em> cluster manager for a three-node system that supports:</p>
+<ul>
+<li>Node join/leave events</li>
+<li>A simple “primary” election</li>
+<li>Heartbeat-based health checking</li>
+</ul>
+<p><strong>Question:</strong>
+Sketch what data structures or APIs you’d use, and how you’d maintain consistency if two nodes send heartbeats at the same time.</p>
+<hr />
+<p><em>These challenges are intended to build design intuition. Try describing your answers in diagrams or pseudocode - it will help you think like a systems engineer, not just a reader.</em></p>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="part1_intro.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_02_roles_responsibilities.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="part1_intro.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_02_roles_responsibilities.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

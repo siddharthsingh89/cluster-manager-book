@@ -1,0 +1,580 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 12 - Membership &amp; Discovery</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-12--membership--discovery"><a class="header" href="#chapter-12--membership--discovery">Chapter 12 — Membership &amp; Discovery</a></h1>
+<p>This chapter describes the membership and discovery subsystem for our distributed database. It defines goals, data and API contracts (referencing earlier configuration/replication contracts), detailed design, implementation plan, service boundaries, protocols, node-local view, request sequences, ASCII diagrams, tests, and skeleton pseudocode.</p>
+<hr />
+<h2 id="121-goals"><a class="header" href="#121-goals">12.1 Goals</a></h2>
+<ol>
+<li><strong>Accurate cluster membership:</strong> Every node must be able to learn who the current members are (alive, suspect, or removed) with bounded staleness.</li>
+<li><strong>Fast failure detection:</strong> Detect node failures quickly and reliably while minimizing false positives.</li>
+<li><strong>Scalable discovery:</strong> Support large clusters (hundreds to thousands) with sub-linear overhead where possible.</li>
+<li><strong>Consistent bootstrap:</strong> Nodes joining must get a consistent view of cluster config (replica sets, roles, shard assignments). This must integrate with the configuration contracts from the previous chapter (ConfigAPI, ReplicaSync, etc.).</li>
+<li><strong>Resilience to partitions:</strong> Partitioned clusters should make forward progress where possible and have clear reconciliation when partitions heal.</li>
+<li><strong>Secure membership changes:</strong> Only authorized controllers or quorum-approved operations may change membership.</li>
+<li><strong>Low operational complexity:</strong> The subsystem should be simple to operate, instrument, and reason about.</li>
+</ol>
+<hr />
+<h2 id="122-concepts--terminology"><a class="header" href="#122-concepts--terminology">12.2 Concepts &amp; Terminology</a></h2>
+<ul>
+<li><strong>Member:</strong> A node that has been added to cluster membership metadata. Each member has <code>id</code>, <code>endpoint</code>, <code>roles</code> (voter, learner, storage-only, witness), <code>meta</code> (labels), and <code>epoch</code>.</li>
+<li><strong>Local View:</strong> The node's internal data structure representing membership state derived from heartbeats, gossip, or controller API.</li>
+<li><strong>Controller / Seed Nodes:</strong> Special nodes or services that help bootstrap membership. They may be lightweight and not part of every cluster (for fully peer-to-peer clusters). They expose a <code>Bootstrap</code>/<code>Join</code> API.</li>
+<li><strong>Failure Detector:</strong> The component that turns missing heartbeats into suspicion and failure events.</li>
+<li><strong>Gossip:</strong> A scalable dissemination protocol used for membership propagation.</li>
+<li><strong>Quorum:</strong> A voting subset used for membership changes to avoid split-brain. Implementation uses majority or configurable quorums per replica-group.</li>
+<li><strong>Epoch / Version:</strong> Monotonic counter for membership configuration changes.</li>
+</ul>
+<hr />
+<h2 id="123-design-overview"><a class="header" href="#123-design-overview">12.3 Design Overview</a></h2>
+<p>We present a hybrid design combining a small, reliable <strong>control-plane</strong> (controller/management nodes or an external configuration service) and <strong>gossip-based</strong> membership for fast local propagation and scalability. Control-plane operations (add/remove) require quorum on controller nodes and produce authoritative membership epochs. Gossip provides eventual convergence and fast failure propagation.</p>
+<p>Rationale:</p>
+<ul>
+<li>Control-plane ensures serialized membership changes and strong semantics for critical operations (reconfigs), while gossip keeps membership view fresh across all nodes with low overhead.</li>
+</ul>
+<p>Components:</p>
+<ul>
+<li><strong>Membership Controller Service (MCS):</strong> Accepts administrative requests to add/remove nodes, emits new membership epochs, and stores authoritative configuration. Implements the authoritative API (ties into ConfigAPI from previous chapter).</li>
+<li><strong>Local Membership Agent (LMA):</strong> Runs on every node, talks to MCS for bootstrap and reconfig, participates in gossip, runs failure detector, emits local events to other subsystems (replication, shards).</li>
+<li><strong>Gossip Layer:</strong> Peer-to-peer UDP/TCP overlay for disseminating membership updates and failure suspect messages. Uses anti-entropy and piggybacking.</li>
+<li><strong>Failure Detector:</strong> Phi-accrual detector with adaptive timeouts.</li>
+<li><strong>Auth &amp; RBAC:</strong> Ensure that only authorized clients can change membership. Mutual TLS between nodes and controllers.</li>
+</ul>
+<hr />
+<h2 id="124-api-contracts-references"><a class="header" href="#124-api-contracts-references">12.4 API Contracts (references)</a></h2>
+<p>Refer back to the configuration contracts from the previous chapter (e.g., <code>ConfigAPI</code>, <code>ReplicaSync</code>). Here we add/clarify membership-related methods that integrate with those contracts.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Controller-side API
+pub trait MembershipControllerAPI {
+    // Admin operations (require quorum on controllers)
+    fn add_member(member: MemberSpec) -&gt; Result&lt;MembershipEpoch&gt;; // returns new epoch
+    fn remove_member(member_id: NodeId) -&gt; Result&lt;MembershipEpoch&gt;;
+    fn update_member(member: MemberSpec) -&gt; Result&lt;MembershipEpoch&gt;;
+
+    // Query
+    fn get_membership() -&gt; MembershipConfig; // latest authoritative config
+
+    // Bootstrap
+    fn join_request(join: JoinRequest) -&gt; Result&lt;JoinResponse&gt;; // used by new nodes
+}
+
+// Node-local agent events
+pub trait LocalMembershipEvents {
+    fn on_local_suspect(node_id: NodeId);
+    fn on_local_failed(node_id: NodeId);
+    fn on_membership_update(cfg: MembershipConfig); // delivered when epoch changes
+}
+<span class="boring">}</span></code></pre></pre>
+<p><code>MembershipConfig</code> includes <code>epoch</code>, list of <code>Member</code>, and signed metadata.</p>
+<hr />
+<h2 id="125-protocols--data-flows"><a class="header" href="#125-protocols--data-flows">12.5 Protocols &amp; Data flows</a></h2>
+<h3 id="1251-bootstrap--join"><a class="header" href="#1251-bootstrap--join">12.5.1 Bootstrap / Join</a></h3>
+<ol>
+<li>New node starts LMA.</li>
+<li>LMA contacts a preconfigured seed list (MCS endpoints or seed nodes) using <code>join_request</code>.</li>
+<li>Controller authenticates request, validates, and issues a <code>JoinResponse</code> containing the current <code>MembershipConfig</code> and TLS bootstrap material if required.</li>
+<li>LMA records the <code>MembershipConfig.epoch</code> and begins normal operation.</li>
+</ol>
+<p>Security: Registration may require a token or admin approval depending on cluster policy. The MCS can create a <code>member</code> in a <code>pending</code> state until node proves identity (e.g., via challenge response).</p>
+<h3 id="1252-normal-operation-gossip--heartbeats"><a class="header" href="#1252-normal-operation-gossip--heartbeats">12.5.2 Normal operation (gossip + heartbeats)</a></h3>
+<ul>
+<li>Each LMA periodically sends heartbeats to a small subset of peers (fanout <code>k</code>, e.g., 3) and piggybacks its local membership vector.</li>
+<li>On receiving a heartbeat, peers update their local view and piggyback any newer entries.</li>
+<li>Anti-entropy runs occasionally (random peer selection) to reconcile membership tables.</li>
+<li>Suspicion is formed by the Failure Detector; once phi crosses threshold, an LMA advertises a <code>suspect</code> message via gossip including local evidence (last seen timestamp, sequence numbers).</li>
+</ul>
+<h3 id="1253-reconfiguration-addremove"><a class="header" href="#1253-reconfiguration-addremove">12.5.3 Reconfiguration (add/remove)</a></h3>
+<ul>
+<li>Admin calls <code>MembershipControllerAPI::add_member</code>.</li>
+<li>Controllers coordinate via a leader election (internal; controllers can also be replicated using raft) to produce new epoch and persist config.</li>
+<li>Controller responds with new <code>MembershipConfig</code> (signed) and notifies a subset of nodes directly (push) and also relies on gossip to propagate.</li>
+<li>Nodes that receive a higher-epoch config replace their local view atomically and emit <code>on_membership_update</code> events.</li>
+</ul>
+<h3 id="1254-failure-handling--eviction"><a class="header" href="#1254-failure-handling--eviction">12.5.4 Failure handling &amp; eviction</a></h3>
+<ul>
+<li>If a node is <code>suspect</code> for longer than an eviction timeout and quorum of controllers or voters agrees, the controller issues a <code>remove_member</code> event with a new epoch.</li>
+<li>Eviction requires quorum to avoid split-brain; thresholds are configurable per cluster.</li>
+</ul>
+<hr />
+<h2 id="126-implementation-plan--services"><a class="header" href="#126-implementation-plan--services">12.6 Implementation Plan &amp; Services</a></h2>
+<h3 id="services-to-create"><a class="header" href="#services-to-create">Services to create</a></h3>
+<ol>
+<li>
+<p><strong>Membership Controller Service (MCS)</strong></p>
+<ul>
+<li>REST/gRPC management API (add/remove/update/get)</li>
+<li>Persistent storage (WAL + snapshot) for membership history</li>
+<li>Optional internal consensus (Raft) for controller replication</li>
+<li>Webhook/Notification integration to inform operators</li>
+</ul>
+</li>
+<li>
+<p><strong>Local Membership Agent (LMA)</strong></p>
+<ul>
+<li>Runs within node process or as sidecar</li>
+<li>Handles join/heartbeat/gossip/failure detector</li>
+<li>Publishes local events via an internal event bus for replication, routing, and admin UI</li>
+</ul>
+</li>
+<li>
+<p><strong>Gossip Transport</strong></p>
+<ul>
+<li>Pluggable transport (UDP for low-latency, TCP for reliability)</li>
+<li>Message types: heartbeat, membership_update, suspect/restore, anti-entropy</li>
+</ul>
+</li>
+<li>
+<p><strong>Security &amp; Auth layer</strong></p>
+<ul>
+<li>Mutual TLS config distribution during bootstrap</li>
+<li>Role-based access control for admin APIs</li>
+</ul>
+</li>
+<li>
+<p><strong>Diagnostics &amp; Metrics</strong></p>
+<ul>
+<li>Heartbeat latency, phi values, gossip fanout, membership epoch history</li>
+</ul>
+</li>
+</ol>
+<h3 id="data-model"><a class="header" href="#data-model">Data model</a></h3>
+<pre><code class="language-text">Member {
+  id: UUID
+  endpoint: (host, port)
+  roles: [voter, learner, storage]
+  meta: {key: value}
+  last_seen: timestamp
+  status: {Alive, Suspect, Failed, Left}
+  epoch: u64
+}
+
+MembershipConfig {
+  epoch: u64
+  members: [Member]
+  signature: bytes
+}
+</code></pre>
+<hr />
+<h2 id="127-failure-detector--parameters"><a class="header" href="#127-failure-detector--parameters">12.7 Failure Detector &amp; Parameters</a></h2>
+<p>Use <strong>Phi-accrual</strong> failure detector with adaptive window sizes. Key parameters:</p>
+<ul>
+<li><code>heartbeat_interval</code> (default 500ms)</li>
+<li><code>phi_threshold</code> (default 8)</li>
+<li><code>eviction_timeout</code> (e.g., 30s to 60s)</li>
+<li><code>gossip_fanout</code> (3)</li>
+<li><code>anti_entropy_interval</code> (e.g., 5s)</li>
+</ul>
+<p>Tune these per environment and provide dynamic runtime flags.</p>
+<hr />
+<h2 id="128-local-process-structure-how-it-looks-on-the-node"><a class="header" href="#128-local-process-structure-how-it-looks-on-the-node">12.8 Local Process Structure (how it looks on the node)</a></h2>
+<pre><code>+-----------------------------------------+
+| Application / Storage Engine            |
+|   - Uses LocalMembershipEvents to react |
++-----------------+-----------------------+
+                  |
++-----------------v-----------------------+
+| Local Membership Agent (LMA)             |
+|  - Membership store (in-memory + small  |
+|    durable cache)                        |
+|  - Failure Detector                      |
+|  - Gossip transport                      |
+|  - Controller client (for joins, epoch)  |
+|  - Admin API (local)                     |
++-----------------+-----------------------+
+                  |
+   +--------------+-------------+
+   |                            |
++--v--+                    +----v----+
+| Gossip|                    | Config |  (other subsystems: replication, routing)
+| Peer  |                    | Watcher|
++------+                    +---------+
+</code></pre>
+<p>LMA exposes local endpoints so the storage engine or replication manager can subscribe to membership change events.</p>
+<hr />
+<h2 id="129-sequence-diagrams-text-based"><a class="header" href="#129-sequence-diagrams-text-based">12.9 Sequence Diagrams (text-based)</a></h2>
+<h3 id="1291-node-join"><a class="header" href="#1291-node-join">12.9.1 Node Join</a></h3>
+<pre><code>Node(LMA) -&gt; Seed(MCS): JoinRequest
+Seed -&gt; Controller: validate -&gt; create pending member
+Controller -&gt; Seed: JoinResponse(MembershipConfig, credentials)
+Seed -&gt; Node: JoinResponse
+Node: store epoch, start heartbeats
+Gossip: node advertises Alive via piggyback
+</code></pre>
+<h3 id="1292-failure-detection-and-eviction"><a class="header" href="#1292-failure-detection-and-eviction">12.9.2 Failure detection and eviction</a></h3>
+<pre><code>NodeA misses heartbeats from NodeB -&gt; FailureDetector marks NodeB suspect
+NodeA -&gt; GossipPeers: suspect(NodeB, evidence=last_seen)
+ManyPeers receive suspect -&gt; update local view (NodeB:Suspect)
+If quorum of voters or controller confirm suspect -&gt; Controller -&gt; remove_member(NodeB) -&gt; new epoch
+Controller -&gt; push new MembershipConfig -&gt; nodes update local view (NodeB:Failed)
+</code></pre>
+<h3 id="1293-reconfiguration-add-member"><a class="header" href="#1293-reconfiguration-add-member">12.9.3 Reconfiguration (Add Member)</a></h3>
+<pre><code>Admin -&gt; Controller: add_member(M)
+Controller: persist new epoch
+Controller -&gt; some nodes: push(MembershipConfig@epoch+1)
+Gossip: propagate config
+Nodes receive higher-epoch config -&gt; atomically swap local membership -&gt; emit on_membership_update
+</code></pre>
+<hr />
+<h2 id="1210-edge-cases--reconciliation"><a class="header" href="#1210-edge-cases--reconciliation">12.10 Edge Cases &amp; Reconciliation</a></h2>
+<ul>
+<li><strong>Split brain:</strong> Controller quorum prevents conflicting authoritative epochs. If controllers partition, nodes accept only signed configs with epoch monotonicity and validate signatures.</li>
+<li><strong>Network partitions:</strong> Nodes continue serving read-only or degraded operations if configured. Reconciliation on healing requires merging states using epoch ordering — higher epoch wins.</li>
+<li><strong>Clock skew:</strong> Use logical clocks/monotonic counters where possible; do not rely on wall-clock for ordering critical decisions. Timestamps are for heuristics only.</li>
+</ul>
+<hr />
+<h2 id="1211-tests-integrationunit--what-must-pass"><a class="header" href="#1211-tests-integrationunit--what-must-pass">12.11 Tests (integration/unit) — what must pass</a></h2>
+<h3 id="unit-tests"><a class="header" href="#unit-tests">Unit tests</a></h3>
+<ol>
+<li>FailureDetector: phi values increase when heartbeats stop; detector marks suspect at threshold.</li>
+<li>MembershipStore: applying a higher epoch config replaces lower epoch; lower epoch is rejected.</li>
+<li>Join/Bootstrap: valid join responses decode correctly and produce initial state.</li>
+<li>GossipMessage serialization/deserialization and signature verification.</li>
+</ol>
+<h3 id="integration-tests"><a class="header" href="#integration-tests">Integration tests</a></h3>
+<ol>
+<li><strong>Small cluster convergence:</strong> 5 nodes start, join via seeds; within <code>t</code> seconds (configurable) all nodes have identical membership epoch and Alive statuses.</li>
+<li><strong>Failure detection:</strong> Bring down node B; within <code>eviction_timeout</code> cluster reaches <code>Failed</code> state for B and controller issues removal.</li>
+<li><strong>Add/Remove race:</strong> Concurrent add/remove requests serialized by controller; final epoch reflects one canonical result.</li>
+<li><strong>Partition &amp; heal:</strong> Split cluster into 2 partitions, make changes in the larger/quorum partition, heal — ensure higher epoch dominates and nodes reconcile.</li>
+<li><strong>Security test:</strong> Unauthorized join attempt is rejected. Signed membership configs fail verification if tampered.</li>
+<li><strong>Stress test:</strong> 1000-node cluster gossip churn under simulated packet loss — membership converges and overhead remains within expected bounds.</li>
+<li><strong>Controller failover:</strong> Simulate controller node failures; controllers replicate via Raft and continue to accept admin requests.</li>
+</ol>
+<p>Include deterministic test harness where possible (simulated clocks, network link controls) to avoid flakiness.</p>
+<hr />
+<h2 id="1212-skeleton-code--pseudocode"><a class="header" href="#1212-skeleton-code--pseudocode">12.12 Skeleton Code / Pseudocode</a></h2>
+<p>Below are simplified pseudocode snippets showing main loops and important functions.</p>
+<h3 id="lma-main-loop-pseudocode"><a class="header" href="#lma-main-loop-pseudocode">LMA main loop (pseudocode)</a></h3>
+<pre><code class="language-python">class LocalMembershipAgent:
+    def __init__(self, config, controller_client, transport):
+        self.members = MembershipStore()
+        self.fd = PhiFailureDetector()
+        self.transport = transport
+        self.controller = controller_client
+        self.heartbeat_interval = config.heartbeat_interval
+
+    def start(self):
+        # bootstrap
+        resp = self.controller.join_request(JoinRequest(self.local_id, self.endpoint))
+        self.apply_membership(resp.membership)
+        # start background loops
+        spawn(self.heartbeat_loop)
+        spawn(self.gossip_receive_loop)
+        spawn(self.failure_check_loop)
+
+    def heartbeat_loop(self):
+        while running:
+            peers = self.members.random_fanout(k=3)
+            for p in peers:
+                msg = Heartbeat(self.local_id, self.members.current_epoch(), piggyback=self.members.diff_for(p))
+                self.transport.send(p.endpoint, msg)
+            sleep(self.heartbeat_interval)
+
+    def gossip_receive_loop(self):
+        for msg in self.transport.receive():
+            self.handle_message(msg)
+
+    def handle_message(self, msg):
+        if msg.type == 'heartbeat' or msg.type == 'membership_update':
+            self.members.merge(msg.membership)
+            self.fd.heartbeat(msg.from)
+        if msg.type == 'suspect':
+            self.members.mark_suspect(msg.target, evidence=msg.evidence)
+
+    def failure_check_loop(self):
+        while running:
+            for m in self.members.list():
+                phi = self.fd.phi(m.id)
+                if phi &gt;= PHI_THRESHOLD and m.status == 'Alive':
+                    self.members.mark_suspect(m.id)
+                    self.transport.gossip(Suspect(m.id, evidence=self.fd.evidence(m.id)))
+            sleep(heartbeat_interval)
+
+    def apply_membership(self, cfg):
+        if cfg.epoch &gt; self.members.epoch:
+            self.members.replace(cfg)
+            emit_event('on_membership_update', cfg)
+</code></pre>
+<h3 id="controller-add_member-flow-pseudocode"><a class="header" href="#controller-add_member-flow-pseudocode">Controller add_member flow (pseudocode)</a></h3>
+<pre><code class="language-python">class MembershipController:
+    def add_member(self, spec):
+        with self.raft.leader_lock():
+            cfg = self.store.load_current()
+            new_cfg = cfg.clone_with_added(spec)
+            new_cfg.epoch += 1
+            self.store.persist(new_cfg)
+            self.notify_nodes(new_cfg)
+            return new_cfg
+</code></pre>
+<h3 id="membershipstoremerge-pseudo"><a class="header" href="#membershipstoremerge-pseudo">MembershipStore.merge (pseudo)</a></h3>
+<pre><code class="language-python">class MembershipStore:
+    def merge(self, other_cfg):
+        if other_cfg.epoch &lt; self.epoch:
+            return
+        if other_cfg.epoch == self.epoch:
+            # merge by member timestamp/status, but keep deterministic rules
+            for m in other_cfg.members:
+                self._merge_member(m)
+        else:
+            # other has higher epoch -&gt; replace
+            self.replace(other_cfg)
+</code></pre>
+<hr />
+<h2 id="1213-operational-considerations"><a class="header" href="#1213-operational-considerations">12.13 Operational considerations</a></h2>
+<ul>
+<li><strong>Upgrades:</strong> Controller code must be backward compatible with older LMAs when rolling upgrades occur. Use feature flags and epoch guards.</li>
+<li><strong>Observability:</strong> Surface detailed metrics and traces for heartbeats, gossip messages, epoch changes, and controller decisions.</li>
+<li><strong>Backpressure:</strong> Avoid sending large membership blobs frequently; use diffs and compressed anti-entropy.</li>
+<li><strong>Configuration:</strong> Allow tuning of phi threshold, fanout, anti-entropy interval via runtime flags.</li>
+</ul>
+<hr />
+<h2 id="1214-future-enhancements"><a class="header" href="#1214-future-enhancements">12.14 Future enhancements</a></h2>
+<ol>
+<li><strong>Adaptive gossip fanout</strong> based on cluster size and topology.</li>
+<li><strong>Sharding-aware membership</strong> where membership is maintained per shard to reduce blast radius.</li>
+<li><strong>Pluggable failure detectors</strong> (e.g., hybrid logical clocks for long-haul links).</li>
+<li><strong>Cross-datacenter optimizations</strong>: separate intra-dc gossip and inter-dc push from controllers.</li>
+</ol>
+<hr />
+<h2 id="1215-next-steps"><a class="header" href="#1215-next-steps">12.15 Next steps</a></h2>
+<ul>
+<li>Convert pseudocode to concrete language implementations (Rust for agents and controllers as per project).</li>
+<li>Build unit tests for critical components first (FailureDetector, MembershipStore, Controller persistence).</li>
+<li>Create a deterministic cluster simulator to validate design under failure modes.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_11_apis_contracts.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_13_placement.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_11_apis_contracts.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_13_placement.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

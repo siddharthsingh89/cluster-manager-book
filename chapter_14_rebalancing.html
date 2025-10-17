@@ -1,0 +1,591 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 14 - Rebalancing &amp; Data Movement</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="chapter-14---rebalancing--data-movement"><a class="header" href="#chapter-14---rebalancing--data-movement"><strong>Chapter 14 - Rebalancing &amp; Data Movement</strong></a></h2>
+<h3 id="overview"><a class="header" href="#overview"><strong>Overview</strong></a></h3>
+<p>In a distributed database, data is partitioned across multiple nodes for scalability and fault tolerance. Over time, workloads evolve - nodes are added or removed, partitions grow unevenly, or hotspots emerge. <strong>Rebalancing</strong> is the process of redistributing data across nodes to restore balance and optimize performance. It ensures that each node holds a fair share of data, serves proportional load, and maintains replication guarantees.</p>
+<p>Data movement is at the heart of rebalancing. It involves migrating partitions, replicas, or ranges from one node to another while preserving consistency, availability, and performance.</p>
+<p>This chapter explores <strong>why</strong> rebalancing is needed, <strong>how</strong> it is performed, and <strong>strategies</strong> to do it efficiently in a distributed database.</p>
+<hr />
+<h3 id="141-motivation-for-rebalancing"><a class="header" href="#141-motivation-for-rebalancing"><strong>14.1 Motivation for Rebalancing</strong></a></h3>
+<p>Rebalancing is triggered by a few common scenarios:</p>
+<ol>
+<li>
+<p><strong>Cluster Expansion or Contraction</strong></p>
+<ul>
+<li><strong>Scale-out:</strong> Adding new nodes to handle increased data or query load.</li>
+<li><strong>Scale-in:</strong> Removing nodes to save cost or handle failures.</li>
+</ul>
+</li>
+<li>
+<p><strong>Skewed Data Growth</strong>
+Some partitions may grow faster due to application behavior, user popularity, or key distribution bias (e.g., time-based keys).</p>
+</li>
+<li>
+<p><strong>Uneven Replica Placement</strong>
+Replication factor changes or failed reassignments may leave replicas unevenly distributed.</p>
+</li>
+<li>
+<p><strong>Hotspot Mitigation</strong>
+A few partitions or ranges become "hot" and cause throughput bottlenecks. Splitting and reassigning such partitions helps even out the load.</p>
+</li>
+<li>
+<p><strong>Hardware or Node Failures</strong>
+Replacement of failed nodes often requires reassigning lost replicas or resynchronizing partitions.</p>
+</li>
+</ol>
+<hr />
+<h3 id="142-rebalancing-goals"><a class="header" href="#142-rebalancing-goals"><strong>14.2 Rebalancing Goals</strong></a></h3>
+<p>A well-designed rebalancing mechanism aims to achieve the following:</p>
+<ul>
+<li><strong>Fairness:</strong> Uniform data and request distribution across nodes.</li>
+<li><strong>Minimal Disruption:</strong> Avoid query latency spikes during data movement.</li>
+<li><strong>Consistency:</strong> Ensure data correctness across replicas during transfer.</li>
+<li><strong>Incrementality:</strong> Migrate gradually without overloading the network.</li>
+<li><strong>Predictability:</strong> Produce deterministic results even under concurrent operations.</li>
+<li><strong>Locality Preservation:</strong> Avoid unnecessary movement when nodes are already near-optimal.</li>
+</ul>
+<hr />
+<h3 id="143-key-concepts"><a class="header" href="#143-key-concepts"><strong>14.3 Key Concepts</strong></a></h3>
+<h4 id="a-logical-vs-physical-rebalancing"><a class="header" href="#a-logical-vs-physical-rebalancing"><strong>(a) Logical vs Physical Rebalancing</strong></a></h4>
+<ul>
+<li><strong>Logical rebalancing:</strong> Changes the metadata (partition ownership, routing tables) without physically moving much data - often used in consistent hashing-based systems.</li>
+<li><strong>Physical rebalancing:</strong> Requires actual data transfer between nodes, typically when using range-based sharding or uneven partition growth.</li>
+</ul>
+<h4 id="b-partition-ownership"><a class="header" href="#b-partition-ownership"><strong>(b) Partition Ownership</strong></a></h4>
+<p>Each partition has a logical “owner.” Ownership changes require a <strong>handover protocol</strong>:</p>
+<ol>
+<li>Source node sends data to target.</li>
+<li>Target validates and applies.</li>
+<li>Ownership metadata is updated in the control plane.</li>
+</ol>
+<h4 id="c-replica-role-changes"><a class="header" href="#c-replica-role-changes"><strong>(c) Replica Role Changes</strong></a></h4>
+<p>In replicated systems, replicas may change roles:</p>
+<ul>
+<li>Secondary → Primary (leadership transfer)</li>
+<li>Primary → Secondary (demotion during scale-out)
+This may happen alongside rebalancing to reduce network load.</li>
+</ul>
+<hr />
+<h3 id="144-rebalancing-strategies"><a class="header" href="#144-rebalancing-strategies"><strong>14.4 Rebalancing Strategies</strong></a></h3>
+<h4 id="1-consistent-hashing-based-rebalancing"><a class="header" href="#1-consistent-hashing-based-rebalancing"><strong>1. Consistent Hashing-Based Rebalancing</strong></a></h4>
+<p>Used in systems like Cassandra and DynamoDB.</p>
+<ul>
+<li>The keyspace is a ring of hash values.</li>
+<li>Each node is responsible for a range of hashes.</li>
+<li>When a node is added, it “takes over” a slice of hash ranges.</li>
+<li>Only <strong>O(1/N)</strong> of data is moved, minimizing disruption.</li>
+</ul>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Minimal movement when nodes join/leave.</li>
+<li>Decentralized management.</li>
+</ul>
+<p><strong>Disadvantages:</strong></p>
+<ul>
+<li>Hard to handle hotspots caused by non-uniform key distribution.</li>
+<li>Balancing may not be perfect.</li>
+</ul>
+<p><strong>Optimization:</strong>
+Use <em>virtual nodes (vnodes)</em> to fine-tune balance. Each node holds multiple smaller ranges, allowing smoother reassignments.</p>
+<hr />
+<h4 id="2-range-based-rebalancing"><a class="header" href="#2-range-based-rebalancing"><strong>2. Range-Based Rebalancing</strong></a></h4>
+<p>Used in systems like Spanner, YugabyteDB, and CockroachDB.</p>
+<ul>
+<li>Data is divided into <strong>key ranges (spans)</strong>.</li>
+<li>Each range can be split or merged dynamically.</li>
+<li>When imbalance is detected, a background process moves ranges.</li>
+</ul>
+<p><strong>Steps:</strong></p>
+<ol>
+<li>Detect skew (based on size, load, or latency).</li>
+<li>Select ranges to move.</li>
+<li>Initiate a <strong>replica add → catch-up → promote → remove</strong> sequence.</li>
+</ol>
+<p><strong>Example:</strong>
+CockroachDB’s <strong>Replicate Queue</strong> continuously evaluates range stats and triggers rebalancing decisions asynchronously.</p>
+<hr />
+<h4 id="3-workload-aware-rebalancing"><a class="header" href="#3-workload-aware-rebalancing"><strong>3. Workload-Aware Rebalancing</strong></a></h4>
+<p>Traditional systems balance data size, but modern systems balance <strong>load</strong> (QPS, write rate, latency).
+Example strategies:</p>
+<ul>
+<li>Move read-heavy ranges to lightly loaded nodes.</li>
+<li>Split high-write partitions.</li>
+<li>Use <strong>observed metrics</strong> to decide migrations.</li>
+</ul>
+<hr />
+<h4 id="4-controlled-data-movement"><a class="header" href="#4-controlled-data-movement"><strong>4. Controlled Data Movement</strong></a></h4>
+<p>To avoid instability, systems <strong>throttle</strong> migration:</p>
+<ul>
+<li>Limit concurrent moves per node.</li>
+<li>Restrict network bandwidth for transfers.</li>
+<li>Prioritize moves by urgency (e.g., fixing under-replicated ranges before performance optimization).</li>
+</ul>
+<hr />
+<h3 id="145-metadata-and-coordination"><a class="header" href="#145-metadata-and-coordination"><strong>14.5 Metadata and Coordination</strong></a></h3>
+<p>Rebalancing requires coordination between <strong>control plane</strong> and <strong>data plane</strong> components.</p>
+<div class="table-wrapper"><table><thead><tr><th>Component</th><th>Responsibility</th></tr></thead><tbody>
+<tr><td><strong>Controller / Balancer Service</strong></td><td>Computes new placement plans and triggers data movement.</td></tr>
+<tr><td><strong>Storage Nodes</strong></td><td>Execute actual replica movement (copy, catch-up, validate).</td></tr>
+<tr><td><strong>Metadata Store</strong></td><td>Tracks ownership and range mappings.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Coordination Flow Example:</strong></p>
+<ol>
+<li>Controller computes new plan.</li>
+<li>Source and destination nodes stream data.</li>
+<li>New replica catches up via log replication.</li>
+<li>Controller updates routing metadata atomically.</li>
+</ol>
+<p>Consistency of metadata updates is crucial - many systems use <strong>Raft</strong> or <strong>Paxos</strong> for this.</p>
+<hr />
+<h3 id="146-algorithms-and-heuristics"><a class="header" href="#146-algorithms-and-heuristics"><strong>14.6 Algorithms and Heuristics</strong></a></h3>
+<ol>
+<li>
+<p><strong>Greedy Rebalancing</strong></p>
+<ul>
+<li>Iteratively moves data from most loaded node to least loaded one.</li>
+<li>Fast, simple, but can oscillate if not damped.</li>
+</ul>
+</li>
+<li>
+<p><strong>Cost-Based Optimization</strong></p>
+<ul>
+<li>Models the system as a weighted graph.</li>
+<li>Uses heuristics or simulated annealing to find a near-optimal migration plan minimizing “movement cost.”</li>
+</ul>
+</li>
+<li>
+<p><strong>Incremental Balancing</strong></p>
+<ul>
+<li>Makes small, continuous adjustments instead of large periodic ones.</li>
+<li>Reduces shock load.</li>
+</ul>
+</li>
+<li>
+<p><strong>Leader-Aware Rebalancing</strong></p>
+<ul>
+<li>Considers leadership distribution in Raft/Paxos groups to avoid overloading a few nodes with leader responsibilities.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h3 id="147-ensuring-safety-and-consistency"><a class="header" href="#147-ensuring-safety-and-consistency"><strong>14.7 Ensuring Safety and Consistency</strong></a></h3>
+<p>Rebalancing touches live data - mistakes can corrupt or lose it. Systems ensure safety through:</p>
+<ul>
+<li><strong>Dual Ownership Prevention:</strong> No two nodes should simultaneously act as owner.</li>
+<li><strong>Quorum-Based Updates:</strong> Use majority agreement before accepting new ownership.</li>
+<li><strong>Checksums / Snapshots:</strong> Validate data integrity post-transfer.</li>
+<li><strong>Versioned Metadata:</strong> Clients always see a consistent routing map, avoiding stale reads.</li>
+</ul>
+<hr />
+<h3 id="148-case-studies"><a class="header" href="#148-case-studies"><strong>14.8 Case Studies</strong></a></h3>
+<h4 id="cassandra"><a class="header" href="#cassandra"><strong>Cassandra</strong></a></h4>
+<ul>
+<li>Uses consistent hashing with vnodes.</li>
+<li>Node addition involves “streaming” token ranges.</li>
+<li>Load balancing can be automated or operator-triggered.</li>
+</ul>
+<h4 id="cockroachdb"><a class="header" href="#cockroachdb"><strong>CockroachDB</strong></a></h4>
+<ul>
+<li>Uses Raft groups per range.</li>
+<li>Rebalancer operates continuously.</li>
+<li>Balancing considers replica count, range size, and QPS metrics.</li>
+</ul>
+<h4 id="tidb"><a class="header" href="#tidb"><strong>TiDB</strong></a></h4>
+<ul>
+<li>Placement Driver (PD) schedules balance.</li>
+<li>Uses region (range) splitting and merging.</li>
+<li>Tracks store capacity, IO rate, and leader distribution.</li>
+</ul>
+<h4 id="spanner"><a class="header" href="#spanner"><strong>Spanner</strong></a></h4>
+<ul>
+<li>Moves ranges lazily using background copy + atomic metadata switch.</li>
+<li>Integrates with leader election to avoid simultaneous movement and leadership churn.</li>
+</ul>
+<hr />
+<h3 id="149-challenges-and-trade-offs"><a class="header" href="#149-challenges-and-trade-offs"><strong>14.9 Challenges and Trade-offs</strong></a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Challenge</th><th>Description</th><th>Trade-off</th></tr></thead><tbody>
+<tr><td><strong>Data Movement Overhead</strong></td><td>High I/O and network load during rebalance</td><td>Throttle vs. Convergence Speed</td></tr>
+<tr><td><strong>Staleness During Move</strong></td><td>Reads during migration may see outdated data</td><td>Sync checkpoints or dual serving</td></tr>
+<tr><td><strong>Concurrent Operations</strong></td><td>Conflicts between rebalancing and other maintenance tasks</td><td>Requires fine-grained scheduling</td></tr>
+<tr><td><strong>Hotspot Dynamics</strong></td><td>Continuous load change makes static balance ineffective</td><td>Adaptive or workload-driven rebalancing</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h3 id="1410-exercises"><a class="header" href="#1410-exercises"><strong>14.10 Exercises</strong></a></h3>
+<ol>
+<li>Explain how consistent hashing minimizes data movement during rebalancing.</li>
+<li>Design a protocol for safely transferring a partition’s ownership between two nodes using Raft.</li>
+<li>Suppose one node is overloaded. Outline a heuristic to decide which partitions to move and where.</li>
+<li>What are the trade-offs between data size-based and QPS-based balancing?</li>
+<li>Describe how range-splitting helps in hotspot mitigation.</li>
+<li>Why should rebalance operations be throttled?</li>
+<li>Compare leader-aware balancing vs. data-only balancing.</li>
+<li>Implement a simulation for greedy rebalancing of N partitions across M nodes.</li>
+<li>Discuss how metadata consistency impacts client routing during rebalancing.</li>
+<li>Suggest improvements to avoid oscillations during load-based rebalancing.</li>
+</ol>
+<hr />
+<h2 id="1412-rebalancing-strategy-for-our-system"><a class="header" href="#1412-rebalancing-strategy-for-our-system"><strong>14.12 Rebalancing Strategy for Our System</strong></a></h2>
+<p>Our distributed database follows a <strong>hybrid range-partitioned architecture</strong> with replication and leader-based consistency. Each partition (or <em>shard</em>) is a self-contained Raft group responsible for a contiguous key range. The system’s control plane tracks placement and orchestrates rebalancing, while data nodes handle actual movement through a coordinated streaming protocol.</p>
+<h3 id="14121-design-objectives"><a class="header" href="#14121-design-objectives"><strong>14.12.1 Design Objectives</strong></a></h3>
+<p>Our rebalance strategy focuses on five core goals:</p>
+<ol>
+<li><strong>Workload-Aware Balance:</strong> Optimize not just for storage utilization, but also for query throughput and latency.</li>
+<li><strong>Incremental Movement:</strong> Rebalance continuously and gradually rather than in large disruptive bursts.</li>
+<li><strong>Replica Safety:</strong> Maintain quorum consistency during movement to ensure no data loss or double ownership.</li>
+<li><strong>Deterministic Metadata Updates:</strong> All ownership and replica role transitions are atomic and versioned.</li>
+<li><strong>Leadership Distribution:</strong> Spread Raft group leaders evenly across nodes to avoid leader hotspots.</li>
+</ol>
+<hr />
+<h3 id="14122-triggering-conditions"><a class="header" href="#14122-triggering-conditions"><strong>14.12.2 Triggering Conditions</strong></a></h3>
+<p>Rebalancing is triggered by <strong>cluster state changes</strong> or <strong>runtime metrics</strong>, such as:</p>
+<div class="table-wrapper"><table><thead><tr><th>Trigger</th><th>Description</th></tr></thead><tbody>
+<tr><td>Node Join</td><td>A new node has registered and is underutilized.</td></tr>
+<tr><td>Node Leave</td><td>A node has been decommissioned or marked unhealthy.</td></tr>
+<tr><td>Range Growth</td><td>A partition exceeds size or QPS thresholds.</td></tr>
+<tr><td>Load Imbalance</td><td>Average CPU, memory, or IOPS deviate beyond tolerance (e.g., ±20%).</td></tr>
+<tr><td>Replication Skew</td><td>Replica placement violates zone or rack constraints.</td></tr>
+</tbody></table>
+</div>
+<p>The <strong>Placement Controller</strong> periodically runs a <strong>Balancing Loop</strong>, collecting stats from all nodes and computing target placements.</p>
+<hr />
+<h3 id="14123-balancing-algorithm"><a class="header" href="#14123-balancing-algorithm"><strong>14.12.3 Balancing Algorithm</strong></a></h3>
+<p>We use a <strong>two-tiered balancing heuristic</strong>:</p>
+<h4 id="step-1-placement-scoring"><a class="header" href="#step-1-placement-scoring"><strong>Step 1: Placement Scoring</strong></a></h4>
+<p>Each node is assigned a <em>balance score</em>:</p>
+<p>[
+score = w_1 \times \text{storage_util} + w_2 \times \text{cpu_util} + w_3 \times \text{leader_count} + w_4 \times \text{replica_diversity_penalty}
+]</p>
+<p>Where:</p>
+<ul>
+<li>(w_1, w_2, w_3, w_4) are tunable weights.</li>
+<li>Lower scores indicate lighter load or better placement.</li>
+</ul>
+<h4 id="step-2-candidate-selection"><a class="header" href="#step-2-candidate-selection"><strong>Step 2: Candidate Selection</strong></a></h4>
+<p>For each partition:</p>
+<ol>
+<li>Compute current owner’s score and average cluster score.</li>
+<li>If deviation exceeds a threshold, mark it for migration.</li>
+<li>Choose target node(s) with minimal score that satisfy zone/rack constraints.</li>
+<li>Plan the replica add → catch-up → promote → remove workflow.</li>
+</ol>
+<p>The goal is to maintain an approximately uniform <em>score distribution</em> across nodes while minimizing movement cost.</p>
+<hr />
+<h3 id="14124-rebalance-execution-pipeline"><a class="header" href="#14124-rebalance-execution-pipeline"><strong>14.12.4 Rebalance Execution Pipeline</strong></a></h3>
+<p>Each migration proceeds through a <strong>four-phase pipeline</strong>, orchestrated by the control plane:</p>
+<div class="table-wrapper"><table><thead><tr><th>Phase</th><th>Action</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>1. Replica Add</strong></td><td><code>AddReplica(target)</code></td><td>Create a new replica on the destination node and start streaming data.</td></tr>
+<tr><td><strong>2. Catch-Up</strong></td><td><code>SyncLogs()</code></td><td>Apply log entries until the replica reaches current commit index.</td></tr>
+<tr><td><strong>3. Role Switch</strong></td><td><code>PromoteReplica()</code></td><td>Promote target to voter; demote old replica to learner.</td></tr>
+<tr><td><strong>4. Cleanup</strong></td><td><code>RemoveReplica(source)</code></td><td>Delete redundant replica after confirmation and checkpoint validation.</td></tr>
+</tbody></table>
+</div>
+<p>Each transition is recorded as a versioned <strong>Placement Event</strong> in the metadata store (etcd or Raft group). This ensures that clients always see a consistent routing view.</p>
+<hr />
+<h3 id="14125-throttling-and-safety"><a class="header" href="#14125-throttling-and-safety"><strong>14.12.5 Throttling and Safety</strong></a></h3>
+<p>Rebalance operations are <strong>rate-limited</strong> to maintain cluster stability:</p>
+<ul>
+<li><strong>MaxConcurrentMovesPerNode:</strong> e.g., 2 active migrations.</li>
+<li><strong>MaxNetworkUsagePercent:</strong> e.g., &lt;30% reserved for rebalance traffic.</li>
+<li><strong>MinReplicaAvailability:</strong> At least <code>RF - 1</code> replicas must remain live before moving the last copy.</li>
+</ul>
+<p>Safety invariants:</p>
+<ul>
+<li>No two nodes ever act as <em>primary owner</em> concurrently.</li>
+<li>Quorum is preserved during every step.</li>
+<li>Data integrity verified via incremental checksums.</li>
+</ul>
+<hr />
+<h3 id="14126-hotspot-detection-and-range-splitting"><a class="header" href="#14126-hotspot-detection-and-range-splitting"><strong>14.12.6 Hotspot Detection and Range Splitting</strong></a></h3>
+<p>The rebalancer also monitors per-range QPS and write amplification metrics.
+If a range becomes a hotspot:</p>
+<ol>
+<li>It is <strong>split</strong> into two smaller ranges (via key boundary division).</li>
+<li>The new sub-ranges are independently placed, potentially on different nodes.</li>
+<li>The metadata layer updates the key-to-range mapping atomically.</li>
+</ol>
+<p>This enables <strong>horizontal range scaling</strong> without full-table rebalancing.</p>
+<hr />
+<h3 id="14127-background-operation"><a class="header" href="#14127-background-operation"><strong>14.12.7 Background Operation</strong></a></h3>
+<p>The rebalance loop runs as a <strong>background service</strong> within the control plane, executing every few minutes or upon major events. It operates under a feedback-controlled model:</p>
+<pre><code>while true:
+    metrics = collect_cluster_stats()
+    plan = compute_rebalance_plan(metrics)
+    if plan.is_nonempty():
+        execute_plan(plan)
+    sleep(REBALANCE_INTERVAL)
+</code></pre>
+<p>This design ensures continuous, adaptive equilibrium - the system remains balanced even as workloads evolve dynamically.</p>
+<hr />
+<h3 id="14128-fault-tolerance-and-rollback"><a class="header" href="#14128-fault-tolerance-and-rollback"><strong>14.12.8 Fault Tolerance and Rollback</strong></a></h3>
+<p>If a rebalance operation fails midway (e.g., due to node crash or network partition):</p>
+<ul>
+<li>The control plane detects timeout and rolls back metadata to the last consistent state.</li>
+<li>Partially copied replicas are marked as “incomplete” and cleaned up asynchronously.</li>
+<li>Reattempts are rate-limited to prevent cascading retries.</li>
+</ul>
+<p>This guarantees <strong>idempotency</strong> - the same rebalance plan can safely be retried.</p>
+<hr />
+<h3 id="14129-example-scenario"><a class="header" href="#14129-example-scenario"><strong>14.12.9 Example Scenario</strong></a></h3>
+<p>Let’s consider a simple case with <strong>six nodes (A–F)</strong> and <strong>replication factor 3</strong>.</p>
+<ul>
+<li>Node E joins with zero load.</li>
+<li>Nodes A and B are 30% overloaded.</li>
+</ul>
+<p><strong>Rebalance Plan:</strong></p>
+<ol>
+<li>Move 2 partitions (P7, P9) from A → E.</li>
+<li>Move 1 partition (P3) from B → F (leader change included).</li>
+<li>Adjust leadership distribution so each node leads ~16% of partitions.</li>
+</ol>
+<p>After execution, cluster utilization normalizes within ±5% deviation, with no read/write interruptions.</p>
+<hr />
+<h3 id="141210-summary"><a class="header" href="#141210-summary"><strong>14.12.10 Summary</strong></a></h3>
+<p>Our system’s rebalance strategy emphasizes <strong>steady, safe, and workload-aware</strong> redistribution.
+By integrating:</p>
+<ul>
+<li>range-based movement,</li>
+<li>load scoring,</li>
+<li>leadership awareness, and</li>
+<li>controlled throttling,</li>
+</ul>
+<p>we achieve a self-healing balance loop capable of adapting to both data growth and dynamic workloads.</p>
+<p>Future versions will integrate <strong>predictive rebalancing</strong> using historical access trends - allowing the system to <em>anticipate</em> hotspots before they occur.</p>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_13_placement.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_15_replication_coordination.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_13_placement.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_15_replication_coordination.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

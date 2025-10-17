@@ -1,0 +1,497 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 20 - Testing Strategy &amp; Verification</title>
+
+
+        <!-- Custom HTML head -->
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M9H5JQ7QYR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-M9H5JQ7QYR');
+</script>	
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-20---testing-strategy--verification"><a class="header" href="#chapter-20---testing-strategy--verification"><strong>Chapter 20 - Testing Strategy &amp; Verification</strong></a></h1>
+<p>Testing a distributed database is a formidable challenge. Unlike single-node systems, correctness depends not only on logic but also on timing, concurrency, and network behavior. A robust testing and verification strategy ensures that new releases maintain functional correctness, consistency guarantees, and operational reliability - even under chaos.</p>
+<hr />
+<h2 id="201-philosophy-of-testing-distributed-systems"><a class="header" href="#201-philosophy-of-testing-distributed-systems"><strong>20.1 Philosophy of Testing Distributed Systems</strong></a></h2>
+<p>Traditional unit tests are insufficient. Distributed systems fail in complex, emergent ways - due to clock drift, message loss, or partial failures.
+The testing philosophy here is <strong>defense in depth</strong>:</p>
+<ol>
+<li><strong>Verify correctness at multiple layers</strong> - from local logic to global invariants.</li>
+<li><strong>Continuously test under stress</strong> - faults, network partitions, and restarts.</li>
+<li><strong>Automate verification</strong> - use formal tools and property-based checks.</li>
+<li><strong>Simulate reality</strong> - include randomness, delay, and workload diversity.</li>
+</ol>
+<hr />
+<h2 id="202-layers-of-testing"><a class="header" href="#202-layers-of-testing"><strong>20.2 Layers of Testing</strong></a></h2>
+<p>Testing spans from the smallest unit to full system integration.</p>
+<div class="table-wrapper"><table><thead><tr><th>Layer</th><th>Scope</th><th>Goal</th></tr></thead><tbody>
+<tr><td><strong>Unit Tests</strong></td><td>Functions, modules</td><td>Local correctness</td></tr>
+<tr><td><strong>Integration Tests</strong></td><td>Service boundaries</td><td>Component interaction</td></tr>
+<tr><td><strong>System Tests</strong></td><td>Multi-node clusters</td><td>End-to-end behavior</td></tr>
+<tr><td><strong>Fault Injection Tests</strong></td><td>Node or network faults</td><td>Resilience</td></tr>
+<tr><td><strong>Consistency Verification</strong></td><td>Data state across replicas</td><td>Safety guarantees</td></tr>
+<tr><td><strong>Chaos &amp; Load Testing</strong></td><td>Real-world stress</td><td>Stability and performance</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h2 id="203-unit-testing"><a class="header" href="#203-unit-testing"><strong>20.3 Unit Testing</strong></a></h2>
+<h3 id="2031-scope"><a class="header" href="#2031-scope"><strong>20.3.1 Scope</strong></a></h3>
+<p>Unit tests validate algorithms and data structures - such as log compaction, key hashing, and serialization.</p>
+<p>Example (Rust):</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[test]
+fn test_log_compaction_removes_obsolete_entries() {
+    let mut log = Log::new();
+    log.append("x", "1");
+    log.append("x", "2");
+    log.compact();
+    assert_eq!(log.len(), 1);
+}
+<span class="boring">}</span></code></pre></pre>
+<h3 id="2032-characteristics"><a class="header" href="#2032-characteristics"><strong>20.3.2 Characteristics</strong></a></h3>
+<ul>
+<li>Fast and deterministic</li>
+<li>No network or I/O dependencies</li>
+<li>Mocks for external services</li>
+</ul>
+<p>Use frameworks like <code>tokio::test</code>, <code>mockall</code>, or <code>proptest</code> for concurrency and property-based assertions.</p>
+<hr />
+<h2 id="204-integration-testing"><a class="header" href="#204-integration-testing"><strong>20.4 Integration Testing</strong></a></h2>
+<p>Integration tests validate interactions between subsystems - storage, replication, and configuration.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[tokio::test]
+async fn test_replica_sync_after_commit() {
+    let cluster = TestCluster::new(3).await;
+    cluster.client().insert("key", "value").await;
+    cluster.await_replication("key").await;
+    assert_eq!(cluster.replica_value("key").await, "value");
+}
+<span class="boring">}</span></code></pre></pre>
+<p>They often spin up mini-clusters in containers or ephemeral VMs using Docker Compose or Kubernetes-in-Docker (kind).</p>
+<p><strong>Checklist:</strong></p>
+<ul>
+<li>API compatibility</li>
+<li>Authentication flow</li>
+<li>Metadata consistency</li>
+<li>Failover correctness</li>
+</ul>
+<hr />
+<h2 id="205-system--end-to-end-testing"><a class="header" href="#205-system--end-to-end-testing"><strong>20.5 System &amp; End-to-End Testing</strong></a></h2>
+<p>End-to-end (E2E) tests mimic real workloads - including concurrent reads/writes, failovers, and schema changes.</p>
+<h3 id="example-workload-scenario"><a class="header" href="#example-workload-scenario"><strong>Example Workload Scenario</strong></a></h3>
+<ul>
+<li>5-node cluster</li>
+<li>3 tenants performing mixed OLTP + analytics queries</li>
+<li>10 simulated failures (restart, network partition)</li>
+<li>Measure durability and recovery latency</li>
+</ul>
+<p>Tools like <strong>Jepsen</strong>, <strong>Litmus</strong>, or custom workload generators are ideal for such testing.</p>
+<hr />
+<h2 id="206-fault-injection-testing"><a class="header" href="#206-fault-injection-testing"><strong>20.6 Fault Injection Testing</strong></a></h2>
+<p>Fault injection helps validate system behavior under adverse conditions.</p>
+<h3 id="2061-types-of-faults"><a class="header" href="#2061-types-of-faults"><strong>20.6.1 Types of Faults</strong></a></h3>
+<ul>
+<li><strong>Crash faults:</strong> Node or process termination</li>
+<li><strong>Network faults:</strong> Packet loss, delay, duplication, partition</li>
+<li><strong>Storage faults:</strong> Disk full, corruption, read-only mounts</li>
+<li><strong>Timing faults:</strong> Clock skew or drift</li>
+</ul>
+<p>Example (simulation snippet):</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fault_injector.drop_messages("raft_append_entries", 0.1);
+fault_injector.delay("storage_commit", Duration::from_millis(500));
+<span class="boring">}</span></code></pre></pre>
+<h3 id="2062-expected-assertions"><a class="header" href="#2062-expected-assertions"><strong>20.6.2 Expected Assertions</strong></a></h3>
+<ul>
+<li>No data loss after crash</li>
+<li>Replication recovers automatically</li>
+<li>Leader election completes under partition</li>
+<li>Quorum consistency holds after recovery</li>
+</ul>
+<hr />
+<h2 id="207-consistency-verification"><a class="header" href="#207-consistency-verification"><strong>20.7 Consistency Verification</strong></a></h2>
+<p>Consistency testing verifies that the system maintains its invariants across replicas.</p>
+<h3 id="2071-data-invariants"><a class="header" href="#2071-data-invariants"><strong>20.7.1 Data Invariants</strong></a></h3>
+<ul>
+<li><strong>Atomicity:</strong> No partial writes</li>
+<li><strong>Linearizability:</strong> Reads reflect the latest committed state</li>
+<li><strong>Snapshot isolation:</strong> Transactions observe a consistent snapshot</li>
+<li><strong>No stale reads:</strong> After replication completes</li>
+</ul>
+<h3 id="2072-verification-techniques"><a class="header" href="#2072-verification-techniques"><strong>20.7.2 Verification Techniques</strong></a></h3>
+<ul>
+<li><strong>State Hash Comparison:</strong>
+Compute Merkle-tree hashes of replica data periodically.</li>
+<li><strong>Operation Replays:</strong>
+Re-run command logs on multiple replicas; compare final states.</li>
+<li><strong>Formal Verification Tools:</strong>
+Model key protocols using <strong>TLA+</strong>, <strong>Ivy</strong>, or <strong>Prusti</strong>.</li>
+</ul>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn verify_replica_state(cluster: &amp;Cluster) {
+    let hashes: Vec&lt;_&gt; = cluster.nodes.iter().map(|n| n.data_hash()).collect();
+    assert!(hashes.iter().all_equal());
+}
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="208-property-based--fuzz-testing"><a class="header" href="#208-property-based--fuzz-testing"><strong>20.8 Property-Based &amp; Fuzz Testing</strong></a></h2>
+<p>Property-based testing explores input space beyond fixed test cases.</p>
+<h3 id="example-property"><a class="header" href="#example-property"><strong>Example Property</strong></a></h3>
+<blockquote>
+<p>"For any sequence of operations, committed data must be recoverable after restart."</p>
+</blockquote>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>proptest! {
+    #[test]
+    fn commit_is_durable(ops in any::&lt;Vec&lt;DbOperation&gt;&gt;()) {
+        let db = setup_db();
+        for op in ops { db.apply(op); }
+        db.restart();
+        assert!(db.verify_durability());
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Fuzzers inject random workloads, corrupt packets, or malformed metadata to surface edge cases.</p>
+<hr />
+<h2 id="209-chaos-engineering"><a class="header" href="#209-chaos-engineering"><strong>20.9 Chaos Engineering</strong></a></h2>
+<p>Chaos testing intentionally disturbs the system to ensure graceful degradation.</p>
+<h3 id="principles"><a class="header" href="#principles"><strong>Principles</strong></a></h3>
+<ol>
+<li>Run in production-like environments.</li>
+<li>Automate controlled experiments.</li>
+<li>Measure recovery time and user impact.</li>
+</ol>
+<p><strong>Example Experiments:</strong></p>
+<ul>
+<li>Kill leader node every 10 minutes.</li>
+<li>Inject 30% network latency between zones.</li>
+<li>Randomly throttle one replica group’s disk I/O.</li>
+</ul>
+<p>Tools: <strong>ChaosMesh</strong>, <strong>Gremlin</strong>, <strong>LitmusChaos</strong>.</p>
+<hr />
+<h2 id="2010-performance--scalability-testing"><a class="header" href="#2010-performance--scalability-testing"><strong>20.10 Performance &amp; Scalability Testing</strong></a></h2>
+<p>Performance testing validates throughput, latency, and resource utilization.</p>
+<h3 id="metrics"><a class="header" href="#metrics"><strong>Metrics</strong></a></h3>
+<ul>
+<li>QPS (queries per second)</li>
+<li>p95/p99 latency</li>
+<li>Replica lag</li>
+<li>CPU, memory, and disk I/O under load</li>
+</ul>
+<p>Use distributed load generators like <strong>Locust</strong>, <strong>wrk2</strong>, or custom Rust benchmarks with <code>criterion</code>.</p>
+<p><strong>Scalability Goal:</strong></p>
+<blockquote>
+<p>“Throughput should scale linearly with the number of nodes, up to the replication factor limit.”</p>
+</blockquote>
+<hr />
+<h2 id="2011-regression--upgrade-testing"><a class="header" href="#2011-regression--upgrade-testing"><strong>20.11 Regression &amp; Upgrade Testing</strong></a></h2>
+<p>Each release must pass regression and upgrade tests to ensure backward compatibility.</p>
+<h3 id="regression-suite"><a class="header" href="#regression-suite"><strong>Regression Suite</strong></a></h3>
+<ul>
+<li>All unit, integration, and E2E tests</li>
+<li>Benchmark comparison against baseline</li>
+<li>Schema and API compatibility checks</li>
+</ul>
+<h3 id="upgrade-tests"><a class="header" href="#upgrade-tests"><strong>Upgrade Tests</strong></a></h3>
+<ul>
+<li>Rolling node upgrades with active traffic</li>
+<li>Cross-version replication and recovery</li>
+<li>Data migration correctness</li>
+</ul>
+<p>Example:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>cluster.upgrade_node("node-2", "v2.1.0").await;
+assert!(cluster.consistency_check().await);
+<span class="boring">}</span></code></pre></pre>
+<hr />
+<h2 id="2012-continuous-verification-pipelines"><a class="header" href="#2012-continuous-verification-pipelines"><strong>20.12 Continuous Verification Pipelines</strong></a></h2>
+<p>Automation ensures that testing is not an afterthought.</p>
+<h3 id="pipeline-stages"><a class="header" href="#pipeline-stages"><strong>Pipeline Stages</strong></a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Stage</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Build &amp; Lint</strong></td><td>Static analysis, code style</td></tr>
+<tr><td><strong>Unit Tests</strong></td><td>Fast, local verification</td></tr>
+<tr><td><strong>Integration Tests</strong></td><td>Multi-node mini-cluster</td></tr>
+<tr><td><strong>System Tests</strong></td><td>End-to-end workloads</td></tr>
+<tr><td><strong>Chaos Stage</strong></td><td>Fault injections and soak tests</td></tr>
+<tr><td><strong>Performance Benchmarks</strong></td><td>Trend tracking</td></tr>
+<tr><td><strong>Formal Check</strong></td><td>Model verification (optional)</td></tr>
+</tbody></table>
+</div>
+<p>Example CI/CD snippet:</p>
+<pre><code class="language-yaml">stages:
+  - build
+  - test
+  - chaos
+  - benchmark
+  - verify
+</code></pre>
+<hr />
+<h2 id="2013-verification-contracts"><a class="header" href="#2013-verification-contracts"><strong>20.13 Verification Contracts</strong></a></h2>
+<h3 id="api-verificationcontract"><a class="header" href="#api-verificationcontract"><strong>API: VerificationContract</strong></a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait VerificationContract {
+    fn verify_invariants(cluster: &amp;Cluster) -&gt; Result&lt;(), Violation&gt;;
+    fn inject_fault(fault: FaultSpec) -&gt; Result&lt;(), FaultError&gt;;
+    fn check_replica_consistency() -&gt; bool;
+    fn run_property_tests(seed: u64);
+}
+<span class="boring">}</span></code></pre></pre>
+<p>This contract defines the verification layer used in both CI and on-demand operator diagnostics.</p>
+<hr />
+<h2 id="2014-challenges--exercises"><a class="header" href="#2014-challenges--exercises"><strong>20.14 Challenges &amp; Exercises</strong></a></h2>
+<p><strong>Challenges</strong></p>
+<ol>
+<li>Design a fault-injection simulator for your replication protocol.</li>
+<li>Model your consensus algorithm in TLA+ and check safety under partition.</li>
+<li>Build a cluster test harness that runs upgrade tests automatically.</li>
+</ol>
+<p><strong>Exercises</strong></p>
+<ul>
+<li>Write a property-based test for transactional rollback correctness.</li>
+<li>Implement a tool to compare per-replica state hashes during recovery.</li>
+</ul>
+<hr />
+<h2 id="summary"><a class="header" href="#summary"><strong>Summary</strong></a></h2>
+<p>Testing and verification turn distributed uncertainty into predictable behavior.
+By combining <strong>layered testing</strong>, <strong>fault simulation</strong>, and <strong>formal validation</strong>, teams can ensure that each release of a distributed database remains:</p>
+<ul>
+<li>Correct under concurrency</li>
+<li>Resilient under chaos</li>
+<li>Consistent across replicas</li>
+<li>Safe to upgrade in production</li>
+</ul>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_19_observability.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="part3_intro.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_19_observability.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="part3_intro.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
